@@ -64,10 +64,8 @@ class ReferenceLetters extends CommonObject
 	public $picto = 'referenceletters@referenceletters';
 
 
-	const STATUS_DRAFT = 0;
-	const STATUS_VALIDATED = 1;
-	const STATUS_CANCELED = 9;
-
+	const STATUS_DISABLED = 0;
+	const STATUS_ACTIVATED = 1;
 
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter[:Sortfield]]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
@@ -108,7 +106,7 @@ class ReferenceLetters extends CommonObject
 		'title' => array('type'=>'varchar(100)', 'label'=>'Title', 'enabled'=>'1', 'position'=>30, 'notnull'=>1, 'visible'=>1,),
 		'use_landscape_format' => array('type'=>'integer', 'label'=>'UseLandscapeFormat', 'enabled'=>'1', 'position'=>40, 'notnull'=>0, 'visible'=>1, 'default'=>'1', 'arrayofkeyval'=>array('0'=>'Oui', '1'=>'Non'),),
 		'default_doc' => array('type'=>'integer', 'label'=>'DefaultDoc', 'enabled'=>'1', 'position'=>50, 'notnull'=>0, 'visible'=>1, 'default'=>'1', 'arrayofkeyval'=>array('0'=>'Oui', '1'=>'Non'), 'validate'=>'1',),
-		'status' => array('type'=>'integer', 'label'=>'Status', 'enabled'=>'1', 'position'=>60, 'notnull'=>1, 'visible'=>0, 'default'=>'1', 'index'=>1, 'arrayofkeyval'=>array('0'=>'Brouillon', '1'=>'Validé'), 'validate'=>'1',),
+		'status' => array('type'=>'integer', 'label'=>'Status', 'enabled'=>'1', 'position'=>60, 'notnull'=>1, 'visible'=>0, 'default'=>'1', 'index'=>1, 'arrayofkeyval'=>array('0'=>'Activated', '1'=>'Disabled'), 'validate'=>'1',),
 		'header' => array('type'=>'text', 'label'=>'Header', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>0,),
 		'footer' => array('type'=>'text', 'label'=>'Footer', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>0, 'default'=>'0',),
 		'use_custom_header' => array('type'=>'integer', 'label'=>'UseCustomHeader', 'enabled'=>'1', 'position'=>90, 'notnull'=>1, 'visible'=>0,),
@@ -118,7 +116,6 @@ class ReferenceLetters extends CommonObject
 		'import_key' => array('type'=>'varchar(100)', 'label'=>'ImportKey', 'enabled'=>'1', 'position'=>130, 'notnull'=>0, 'visible'=>0,),
 		'fk_user_author' => array('type'=>'integer', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1',),
 		'fk_user_mod' => array('type'=>'integer', 'label'=>'UserMod', 'enabled'=>'1', 'position'=>150, 'notnull'=>1, 'visible'=>0,),
-		'entity' => array('type'=>'integer', 'label'=>'Entity', 'enabled'=>'1', 'position'=>160, 'notnull'=>1, 'visible'=>0, 'default'=>'1',),
 	);
 	public $rowid;
 	public $Ref;
@@ -136,7 +133,6 @@ class ReferenceLetters extends CommonObject
 	public $import_key;
 	public $fk_user_author;
 	public $fk_user_mod;
-	public $entity;
 	// END MODULEBUILDER PROPERTIES
 
 
@@ -514,7 +510,7 @@ class ReferenceLetters extends CommonObject
 			$object->label = empty($this->fields['label']['default']) ? $langs->trans("CopyOf")." ".$object->label : $this->fields['label']['default'];
 		}
 		if (property_exists($object, 'status')) {
-			$object->status = self::STATUS_DRAFT;
+			$object->status = self::STATUS_DISABLED;
 		}
 		if (property_exists($object, 'date_creation')) {
 			$object->date_creation = dol_now();
@@ -743,7 +739,7 @@ class ReferenceLetters extends CommonObject
 		$error = 0;
 
 		// Protection
-		if ($this->status == self::STATUS_VALIDATED) {
+		if ($this->status == self::STATUS_ACTIVATED) {
 			dol_syslog(get_class($this)."::validate action abandonned: already validated", LOG_WARNING);
 			return 0;
 		}
@@ -772,7 +768,7 @@ class ReferenceLetters extends CommonObject
 			// Validate
 			$sql = "UPDATE ".MAIN_DB_PREFIX.$this->table_element;
 			$sql .= " SET ref = '".$this->db->escape($num)."',";
-			$sql .= " status = ".self::STATUS_VALIDATED;
+			$sql .= " status = ".self::STATUS_ACTIVATED;
 			if (!empty($this->fields['date_validation'])) {
 				$sql .= ", date_validation = '".$this->db->idate($now)."'";
 			}
@@ -839,7 +835,7 @@ class ReferenceLetters extends CommonObject
 		// Set new ref and current status
 		if (!$error) {
 			$this->ref = $num;
-			$this->status = self::STATUS_VALIDATED;
+			$this->status = self::STATUS_ACTIVATED;
 		}
 
 		if (!$error) {
@@ -862,7 +858,7 @@ class ReferenceLetters extends CommonObject
 	public function setDraft($user, $notrigger = 0)
 	{
 		// Protection
-		if ($this->status <= self::STATUS_DRAFT) {
+		if ($this->status <= self::STATUS_DISABLED) {
 			return 0;
 		}
 
@@ -873,55 +869,7 @@ class ReferenceLetters extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'REFERENCELETTERS_UNVALIDATE');
-	}
-
-	/**
-	 *	Set cancel status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
-	 */
-	public function cancel($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_VALIDATED) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->referenceletters->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->referenceletters->referenceletters_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'REFERENCELETTERS_CANCEL');
-	}
-
-	/**
-	 *	Set back to validated status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
-	 */
-	public function reopen($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_CANCELED) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->referenceletters->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->referenceletters->referenceletters_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'REFERENCELETTERS_REOPEN');
+		return $this->setStatusCommon($user, self::STATUS_DISABLED, $notrigger, 'REFERENCELETTERS_UNVALIDATE');
 	}
 
 	/**
@@ -1075,19 +1023,13 @@ class ReferenceLetters extends CommonObject
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
 			//$langs->load("referenceletters@referenceletters");
-			$this->labelStatus[self::STATUS_DRAFT] = $langs->transnoentitiesnoconv('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
-			$this->labelStatus[self::STATUS_CANCELED] = $langs->transnoentitiesnoconv('Disabled');
-			$this->labelStatusShort[self::STATUS_DRAFT] = $langs->transnoentitiesnoconv('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
-			$this->labelStatusShort[self::STATUS_CANCELED] = $langs->transnoentitiesnoconv('Disabled');
+			$this->labelStatus[self::STATUS_DISABLED] = $langs->transnoentitiesnoconv('Disabled');
+			$this->labelStatus[self::STATUS_ACTIVATED] = $langs->transnoentitiesnoconv('Activated');
+			$this->labelStatusShort[self::STATUS_DISABLED] = $langs->transnoentitiesnoconv('Disabled');
+			$this->labelStatusShort[self::STATUS_ACTIVATED] = $langs->transnoentitiesnoconv('Activated');
 		}
 
 		$statusType = 'status'.$status;
-		//if ($status == self::STATUS_VALIDATED) $statusType = 'status1';
-		if ($status == self::STATUS_CANCELED) {
-			$statusType = 'status6';
-		}
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}

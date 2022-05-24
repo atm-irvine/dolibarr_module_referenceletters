@@ -88,7 +88,6 @@ $langs->loadLangs(array("referenceletters@referenceletters", "other"));
 // Get parameters
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
-$lineid   = GETPOST('lineid', 'int');
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -131,7 +130,7 @@ $enablepermissioncheck = 0;
 if ($enablepermissioncheck) {
 	$permissiontoread = $user->rights->referenceletters->referenceletters->read;
 	$permissiontoadd = $user->rights->referenceletters->referenceletters->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-	$permissiontodelete = $user->rights->referenceletters->referenceletters->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
+	$permissiontodelete = $user->rights->referenceletters->referenceletters->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DISABLED);
 	$permissionnote = $user->rights->referenceletters->referenceletters->write; // Used by the include of actions_setnotes.inc.php
 	$permissiondellink = $user->rights->referenceletters->referenceletters->write; // Used by the include of actions_dellink.inc.php
 } else {
@@ -147,7 +146,7 @@ $upload_dir = $conf->referenceletters->multidir_output[isset($object->entity) ? 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
 //if ($user->socid > 0) $socid = $user->socid;
-//$isdraft = (isset($object->status) && ($object->status == $object::STATUS_DRAFT) ? 1 : 0);
+//$isdraft = (isset($object->status) && ($object->status == $object::STATUS_DISABLED) ? 1 : 0);
 //restrictedArea($user, $object->element, $object->id, $object->table_element, '', 'fk_soc', 'rowid', $isdraft);
 if (empty($conf->referenceletters->enabled)) accessforbidden();
 if (!$permissiontoread) accessforbidden();
@@ -182,31 +181,6 @@ if (empty($reshook)) {
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
-
-	// Actions when linking object each other
-	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
-
-	// Actions when printing a doc from card
-	include DOL_DOCUMENT_ROOT.'/core/actions_printing.inc.php';
-
-	// Action to move up and down lines of object
-	//include DOL_DOCUMENT_ROOT.'/core/actions_lineupdown.inc.php';
-
-	// Action to build doc
-	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
-
-	if ($action == 'set_thirdparty' && $permissiontoadd) {
-		$object->setValueFrom('fk_soc', GETPOST('fk_soc', 'int'), '', '', 'date', '', $user, $triggermodname);
-	}
-	if ($action == 'classin' && $permissiontoadd) {
-		$object->setProject(GETPOST('projectid', 'int'));
-	}
-
-	// Actions to send emails
-	$triggersendname = 'REFERENCELETTERS_REFERENCELETTERS_SENTBYMAIL';
-	$autocopy = 'MAIN_MAIL_AUTOCOPY_REFERENCELETTERS_TO';
-	$trackid = 'referenceletters'.$object->id;
-	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 }
 
 
@@ -226,21 +200,23 @@ $title = $langs->trans("ReferenceLetters");
 $help_url = '';
 llxHeader('', $title, $help_url);
 
-$selectElementType = selectElementType();
-// Example : Adding jquery code
- print '<script type="text/javascript">
- jQuery(document).ready(function() {
- 	function init_myfunc()
- 	{
- 		var element = "' .addslashes($selectElementType). '";
-		$(element).replaceAll("#element_type");
- 	}
- 	init_myfunc();
- 	jQuery("#mybutton").click(function() {
- 		init_myfunc();
- 	});
- });
- </script>';
+if($action == 'create' || $action == 'edit') {
+	$selectElementType = selectElementType();
+	print '<script type="text/javascript">
+	 jQuery(document).ready(function() {
+		function init_myfunc()
+		{
+			var element = "' .addslashes($selectElementType). '";
+			$(element).replaceAll("#element_type");
+		}
+		init_myfunc();
+		jQuery("#mybutton").click(function() {
+			init_myfunc();
+		});
+	 });
+	 </script>';
+}
+
 
 
 // Part to create
@@ -332,10 +308,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Confirmation to delete
 	if ($action == 'delete') {
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteReferenceLetters'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
-	}
-	// Confirmation to delete line
-	if ($action == 'deleteline') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
 	}
 
 	// Clone confirmation
@@ -450,58 +422,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print dol_get_fiche_end();
 
-
-	/*
-	 * Lines
-	 */
-
-	if (!empty($object->table_element_line)) {
-		// Show object lines
-		$result = $object->getLinesArray();
-
-		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
-		<input type="hidden" name="token" value="' . newToken().'">
-		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
-		<input type="hidden" name="mode" value="">
-		<input type="hidden" name="page_y" value="">
-		<input type="hidden" name="id" value="' . $object->id.'">
-		';
-
-		if (!empty($conf->use_javascript_ajax) && $object->status == 0) {
-			include DOL_DOCUMENT_ROOT.'/core/tpl/ajaxrow.tpl.php';
-		}
-
-		print '<div class="div-table-responsive-no-min">';
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
-			print '<table id="tablelines" class="noborder noshadow" width="100%">';
-		}
-
-		if (!empty($object->lines)) {
-			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
-		}
-
-		// Form to add new line
-		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines') {
-			if ($action != 'editline') {
-				// Add products/services form
-
-				$parameters = array();
-				$reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-				if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-				if (empty($reshook))
-					$object->formAddObjectLine(1, $mysoc, $soc);
-			}
-		}
-
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
-			print '</table>';
-		}
-		print '</div>';
-
-		print "</form>\n";
-	}
-
-
 	// Buttons for actions
 
 	if ($action != 'presend' && $action != 'editline') {
@@ -513,25 +433,33 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook)) {
-			// Send
-			if (empty($user->socid)) {
-				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle');
+			if ($user->rights->referenceletters->write) {
+				print '<div class="inline-block divButAction">';
+				print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters/card.php', 1) . '?action=addbreakpage&id=' . $object->id . '">' . $langs->trans("RefLtrAddPageBreak") . '</a>';
+				if (strpos('rfltr_agefodd_', $object->element_type) == false && (array_key_exists('listmodelfile',$object->element_type_list[$object->element_type]))) {
+					print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters/card.php', 1) . '?action=adddocpdf&id=' . $object->id . '">' . $langs->trans("RefLtrAddPDFDoc") . '</a>';
+				}
+				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletters/card.php',1).'?action=addbreakpagewithoutheader&id='.$object->id.'">' . $langs->trans("RefLtrAddPageBreakWithoutHeader") . '</a>';
+				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletters/chapter.php',1).'?action=create&idletter='.$object->id.'">' . $langs->trans("RefLtrNewChaters") . '</a>';
+				print "</div><br>";
+				//print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit">' . $langs->trans("Edit") . "</a></div>\n";
+				print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=clone">' . $langs->trans("Clone") . "</a></div>\n";
 			}
 
 			// Back to draft
-			if ($object->status == $object::STATUS_VALIDATED) {
-				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
+			if ($object->status == $object::STATUS_ACTIVATED) {
+				print dolGetButtonAction($langs->trans('Disable'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
 			}
 
 			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
 
 			// Validate
-			if ($object->status == $object::STATUS_DRAFT) {
+			if ($object->status == $object::STATUS_DISABLED) {
 				if (empty($object->table_element_line) || (is_array($object->lines) && count($object->lines) > 0)) {
-					print dolGetButtonAction($langs->trans('Validate'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes&token='.newToken(), '', $permissiontoadd);
+					print dolGetButtonAction($langs->trans('Activate'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes&token='.newToken(), '', $permissiontoadd);
 				} else {
 					$langs->load("errors");
-					print dolGetButtonAction($langs->trans("ErrorAddAtLeastOneLineFirst"), $langs->trans("Validate"), 'default', '#', '', 0);
+					print dolGetButtonAction($langs->trans("ErrorAddAtLeastOneLineFirst"), $langs->trans("Activate"), 'default', '#', '', 0);
 				}
 			}
 
@@ -546,8 +474,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print dolGetButtonAction($langs->trans('Enable'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=enable&token='.newToken(), '', $permissiontoadd);
 				}
 			}
-			if ($permissiontoadd) {
-				if ($object->status == $object::STATUS_VALIDATED) {
+			/* if ($permissiontoadd) {
+				if ($object->status == $object::STATUS_ACTIVATED) {
 					print dolGetButtonAction($langs->trans('Cancel'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=close&token='.newToken(), '', $permissiontoadd);
 				} else {
 					print dolGetButtonAction($langs->trans('Re-Open'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=reopen&token='.newToken(), '', $permissiontoadd);
@@ -556,15 +484,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			*/
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DISABLED && $permissiontoadd));
 		}
 		print '</div>'."\n";
-	}
-
-
-	// Select mail models is same action as presend
-	if (GETPOST('modelselected')) {
-		$action = 'presend';
 	}
 
 	if ($action != 'presend') {
@@ -584,37 +506,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $formfile->showdocuments('referenceletters:ReferenceLetters', $object->element.'/'.$objref, $filedir, $urlsource, $genallowed, $delallowed, $object->model_pdf, 1, 0, 0, 28, 0, '', '', '', $langs->defaultlang);
 		}
 
-		// Show links to link elements
-		$linktoelem = $form->showLinkToObjectBlock($object, null, array('referenceletters'));
-		$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
-
-
-		print '</div><div class="fichehalfright">';
-
-		$MAXEVENT = 10;
-
-		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/referenceletters/referenceletters_agenda.php', 1).'?id='.$object->id);
-
-		// List of actions on element
-		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
-		$formactions = new FormActions($db);
-		$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlcenter);
-
 		print '</div></div>';
 	}
-
-	//Select mail models is same action as presend
-	if (GETPOST('modelselected')) {
-		$action = 'presend';
-	}
-
-	// Presend form
-	$modelmail = 'referenceletters';
-	$defaulttopic = 'InformationMessage';
-	$diroutput = $conf->referenceletters->dir_output;
-	$trackid = 'referenceletters'.$object->id;
-
-	include DOL_DOCUMENT_ROOT.'/core/tpl/card_presend.tpl.php';
 }
 
 // End of page
