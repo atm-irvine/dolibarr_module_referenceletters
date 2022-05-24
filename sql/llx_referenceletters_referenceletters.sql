@@ -18,8 +18,8 @@ CREATE TABLE llx_referenceletters_referenceletters(
 	-- BEGIN MODULEBUILDER FIELDS
 	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
 	Ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
-	title varchar(100) NOT NULL, 
 	element_type varchar(50) NOT NULL, 
+	title varchar(100) NOT NULL, 
 	use_landscape_format integer DEFAULT 1, 
 	default_doc integer DEFAULT 1, 
 	status integer DEFAULT 1 NOT NULL, 
@@ -28,7 +28,7 @@ CREATE TABLE llx_referenceletters_referenceletters(
 	use_custom_header integer NOT NULL, 
 	use_custom_footer integer NOT NULL, 
 	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-	datec datetime, 
+	date_creation datetime, 
 	import_key varchar(100), 
 	fk_user_author integer, 
 	fk_user_mod integer NOT NULL

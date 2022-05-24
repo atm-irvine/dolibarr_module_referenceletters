@@ -114,15 +114,15 @@ class ReferenceLetters extends CommonObject
 		'use_custom_header' => array('type'=>'integer', 'label'=>'UseCustomHeader', 'enabled'=>'1', 'position'=>90, 'notnull'=>1, 'visible'=>0,),
 		'use_custom_footer' => array('type'=>'integer', 'label'=>'UseCustomerFooter', 'enabled'=>'1', 'position'=>100, 'notnull'=>1, 'visible'=>0,),
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>110, 'notnull'=>0, 'visible'=>0,),
-		'datec' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>120, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1', 'css'=>'left',),
+		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>120, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1', 'css'=>'left',),
 		'import_key' => array('type'=>'varchar(100)', 'label'=>'ImportKey', 'enabled'=>'1', 'position'=>130, 'notnull'=>0, 'visible'=>0,),
 		'fk_user_author' => array('type'=>'integer', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1',),
 		'fk_user_mod' => array('type'=>'integer', 'label'=>'UserMod', 'enabled'=>'1', 'position'=>150, 'notnull'=>1, 'visible'=>0,),
 	);
 	public $rowid;
 	public $Ref;
-	public $title;
 	public $element_type;
+	public $title;
 	public $use_landscape_format;
 	public $default_doc;
 	public $status;
@@ -131,7 +131,7 @@ class ReferenceLetters extends CommonObject
 	public $use_custom_header;
 	public $use_custom_footer;
 	public $tms;
-	public $datec;
+	public $date_creation;
 	public $import_key;
 	public $fk_user_author;
 	public $fk_user_mod;
