@@ -1,0 +1,233 @@
+# Copyright (C) 2022 SuperAdmin
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+#
+# Générique
+#
+
+# Module label 'ModuleXXXName'
+# (where XXX is value of numeric property 'numero' of module)
+Module103258Name = DocEdit
+# Module description 'ModuleXXXDesc'
+# (where XXX is value of numeric property 'numero' of module)
+Module103258Desc = Gère des modèles de document
+
+#
+# Permissions
+#
+Permission1032581=Voir les modèles de document
+Permission1032582=Modifier les modèles de document
+Permission1032583=Supprimer les modèles de document
+Permission1032584=Utiliser les modèles de document
+
+#
+# Page d'administration
+#
+ReferenceLettersSetup = Configuration du module DocEdit
+ReferenceLettersSettings = Réglages
+ReferenceLettersSetupPage = Page de réglage de DocEdit
+RefLtrNothingToSet = Il n'y a pas de paramétrage spécifique à ce module. Aller dans le module DocEdit.
+RefLtrSimpleNumRefModelDesc=Renvoie le numéro sous la forme LTR-yymm-nnnn où yy est l'année, mm le mois et nnnn un compteur séquentiel sans rupture et sans remise à 0
+RefLtrREF_LETTER_CREATEEVENT=Crée un evenement dans l'agenda lors de la création d'un modèle de document
+RefLtrHelpREF_LETTER_CREATEEVENT=Crée un evenement dans l'agenda lors de la création d'un document
+RefLtrREF_LETTER_EVTCOPYFILE=Copie le document PDF dans les fichiers joints de l'évenement créé
+RefLtrHelpREF_LETTER_EVTCOPYFILE=Copie le document PDF dans les fichiers joints de l'évenement crée
+RefLtrConfirmChangeState=Etes-vous sûr de changer cette option ?
+RefLtrREF_LETTER_TYPEEVENTNAME=Nom de l'évenement créé
+RefLtrREF_LETTER_TYPEEVENTNAME_normal=<Nouveau modèle de document  {ref_int}>
+RefLtrREF_LETTER_TYPEEVENTNAME_other=<{Titre du modèle} - {nom du client}>
+RefLtrREF_LETTER_OUTPUTREFLET=Afficher le titre et la référence du document dans l'entête du document PDF
+RefLtrREF_LETTER_PREDEF_HEADER_AND_FOOTER=Utiliser un modèle d'entête et de pied de page personnalisé
+RefLtrHelpREF_LETTER_PREDEF_HEADER_AND_FOOTER=Permet de définir un modèle d'entête et de pied de page à utiliser pour vos modèles de documents
+RefLtrReInstallTemplate=Ré-installer les modèles de documents standard
+RefLtrDOCEDIT_CHAPTERS_INLINE_EDITION=Utiliser le mode "Edition dans le texte" d'un document
+RefLtrDOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT=Par défaut, copier le document généré à l’emplacement du document standard
+RefLtrHelpDOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT=Si cette option est activée, la case « Copier le document généré à l’emplacement du document standard » de l’onglet Modèle de document sera cochée par défaut.
+
+#Models
+RefLtrPropal=Exemple de modèle de PROPOSITION
+RefLtrInvoice=Exemple de modèle de FACTURE
+RefLtrOrder=Exemple de modèle de COMMANDE
+RefLtrContract=Exemple de modèle de CONTRAT
+RefLtrSupplierProposals=Exemple de modèle de DEMANDE DE PRIX
+RefLtrSupplierOrders=Exemple de modèle de COMMANDE FOURNISSEUR
+RefLtrAgefodd=Exemple de modèle pour le module Formation
+RefLtrAgefoddConvention=Exemple de modèle de convention pour le module Formation
+RefLtrAgefoddFichePresence=Exemple de modèle de feuille d'émargement vide pour le module Formation
+RefLtrShipping=Exemple de modèle de BON DE LIVRAISON
+
+#
+# Page À propos
+#
+About = À propos
+ReferenceLettersAbout = À propos de DocEdit
+ReferenceLettersAboutPage = Page à propos de DocEdit
+
+#
+# Menu
+#
+RefLtrList=Liste des modèles de document
+RefLtrNew=Nouveau modèle de document
+RefLtrLetters=Modèle de document
+RefLtrLettersActiveListbox=Les %s dernier(s) modèle(s) de document(s) disponible(s)
+RefLtrLettersUnactiveListbox=Les %s dernier(s) modèle(s) de document(s) désactivé(s)
+RefLtrExistingLetters=Les %s dernier(s) document(s) existant(s)
+
+#
+# Pages
+#
+RefLtrCreate=Nouveau modèle de document
+RefLtrTitle=Titre
+RefLtrElement=Type d'objet pour le modèle de document
+RefLtrUseLandscapeFormat=Utiliser le format paysage
+RefLtrDelete=Supprimer le modèle de document
+RefLtrConfirmDelete=Êtes-vous sûr(e) de supprimer le modèle de document ?
+RefLtrDeleteChapter=Supprimer un chapitre
+RefLtrConfirmDeleteChapter=Êtes-vous sûr(e) de supprimer le chapitre ?
+RefLtrChapters=Chapitres
+RefLtrNewChaters=Nouveau chapitre
+RefLtrNew=Nouveau modèle de document
+RefLtrOptionHelp=Chaque ligne produira un alinéa sur le documents
+RefLtrBackToRefLtr=Retour au modèle de document
+RefLtrList=Liste des modèles de document
+RefLtrLangue=Langue
+RefLtrPosition=Numéro d'ordre
+RefLtrOption=Liste des options
+RefLtrText=Texte
+RefLtrNoModelReadyForThisObject=Le module DocEdit n'est pas encore utilisable pour %s
+RefLtrSelectModel=Sélectionner le modèle
+RefLtrCreateDoc=Créer le document
+RefLtrRef=Courrier Ref.
+RefLtrExistingLetters=Documents existants
+RefLtrNewLetters=Nouveau document
+RefLtrConfirmDeleteLetter=Êtes-vous sûr(e) de supprimer ce document ?
+RefLtrDeleteLetter=Supprimer un document
+RefLtrDatec=Date de création
+RefLtrTag=Tag
+RefLtrDisplayTag=Afficher les tags
+RefLtrNoneExists=Aucun(e) %s existe, impossible d'afficher un exemple
+RefLtrAddPageBreak=Ajouter un saut de page
+RefLtrPageBreak=Saut de page
+RefLtrAddPageBreakWithoutHeader=Saut de page (sans répéter l'entête sur la page suivante)
+RefLtrListInstance=Liste des documents
+RefLtrDoc=Document
+RefLtrErrorCopyFile=Erreur durant la copie du document PDF du document sur l'événement de l'agenda
+RefLtrBackground=Image de fond
+RefLtrBackgroundHelp=Seuls les fichiers PDF seront utilisés comme image de fond des documents généré. Un seul fichier (le premier) sera utilisé. Les liens (URL) seront ignorés. <BR> Seuls les sauts de pages "manuel" seront avec l'image de fond
+RefLtrReadOnly=Lecture seule (invisible lors de la création d'une instance de document (Onglet modéle de docuement sur les devis/commandes/....), pas d'impact sur la création 'simple' (via le bouton générer le document des devis/commandes/....)
+RefLtrUnsecable=Essaye de mettre ce chapitre sur une seule page
+RefLtrTitleModel=Titre modèle de document
+RefLtrDefaultDoc=Document par defaut
+RefLtrModifyAndStay=Sauver et rester
+RefLtrAddPDFDoc=Ajouter le document PDF standard de l'élément
+RefLtrPDFDoc=PDF standard de l'élément
+
+RefLtrListMassGen=Génération en masse
+RefLtrSelectModelToGen=Modèle à générer
+GenerationInProgress=Génération en cours
+AllDocumentsGenerated=Tous les documents ont été générés
+NoChapterIntoYourModel=Il n'y pas de chapitre dans votre modèle.
+AllDocumentsGeneratedButError=Des documents n'ont pu être générés. Consultez la liste pour connaître lesquels.
+NoContentChapterForLang=Pas de chapitre défini pour la langue %s
+
+RefLtrUseCustomHeader=Utiliser un entête personnalisé
+RefLtrUseCustomFooter=Utiliser un pied de page personnalisé
+RefLtrHeaderContent=Contenu de l'entête personnalisé
+RefLtrFooterContent=Contenu du pied de page personnalisé
+RefLtrHeaderTab=Entête
+RefLtrFooterTab=Pied de page
+
+RefLtrActive = Activer
+RefLtrAvailable = Disponible
+RefLtrUnvailable = Désactivé
+RefLtrUnactive = Désactiver
+
+RefLtrOverwriteStdDoc=Copier le document généré à l’emplacement du document standard
+RefLtrOverwriteStdDocHelp=Si le document standard existe déjà, il sera remplacé
+
+RefLtrCannotCopyFile=Impossible de remplacer le standard par le fichier généré, il reste disponible dans les documents.
+RefLtrCannotCreateDir=Impossible de créer le répertoire : "%s"
+RefLtrStdDocOverwritten=Le document standard (%s) a bien été remplacé par le document DocEdit généré (%s).
+RefLtrCopiedInStdDocLocation=Le document standard (%s) a bien été créé comme copie du document DocEdit généré (%s).
+
+RefSubtitutionTable=Table des subtitutions
+DisplaySubtitutionTable=Afficher la table des subtitutions
+ClickToAddOnEditor=cliquer pour ajouter au texte
+ClickToCopy=Cliquer pour copier
+
+PrestaSocName=Nom de la société du prestataire
+PrestaLastname=Nom du prestataire
+PrestaFirstname=Prénom du prestataire
+
+PrestaSocId = Numéro technique de la société du prestataire
+PrestaSocNameAlias = Alias de la société du prestataire
+PrestaSocCode = Code client de la société du prestataire
+PrestaSocSupplier = Code fournisseur de la société du prestataire
+PrestaSocEmail = Email de la société du prestataire
+PrestaSocPhone = Téléphone de la société du prestataire
+PrestaSocFax = Fax de la société du prestataire
+PrestaSocAddress = Adresse de la société du prestataire
+PrestaSocZip = Code postal de la société du prestataire
+PrestaSocTown = Ville de la société du prestataire
+PrestaSocCountryId = Numéro technique de la société du prestataire
+PrestaSocCountryCode = Code de la société du prestataire
+PrestaSocIdprof1 = Identifiant professionnel 1 de la société du prestataire
+PrestaSocIdprof2 = Identifiant professionnel 2 de la société du prestataire
+PrestaSocIdprof3 = Identifiant professionnel 3 de la société du prestataire
+PrestaSocIdprof4 = Identifiant professionnel 4 de la société du prestataire
+PrestaSocIdprof5 = Identifiant professionnel 5 de la société du prestataire
+PrestaSocIdprof6 = Identifiant professionnel 6 de la société du prestataire
+PrestaSocTvaIntra = N° de TVA Intracommunautaire de la société du prestataire
+PrestaSocNotePublic = Note publique de la société du prestataire
+PrestaSocNotePrivate = Note privée de la société du prestataire
+
+#
+# Substitutions Agefodd
+#
+RefLtrSubstAgefodd=Sessions de formation module Agefodd
+RefLtrSubstAgefoddListParticipants=Participants (Liste de données Agefodd "TStagiairesSession" ou "TStagiairesSessionSoc" ou "TStagiairesSessionPresent" ou "TStagiairesSessionSocConfirm")
+RefLtrSubstAgefoddListHoraires=Horaires (Liste de données Agefodd "THorairesSession")
+RefLtrSubstAgefoddListFormateurs=Formateurs (Liste de données Agefodd "TFormateursSession")
+RefLtrSubstAgefoddStagiaire=Stagiaire (pour les documents par participants)
+RefLtrSubstConvention=Convention (uniquement dans un modéle de type convention)
+RefLtrTStagiairesSessionConvention=Participants (uniquement dans un modéle de type convention) (Liste de données Agefodd "TStagiairesSessionConvention")
+RefLtrTrainerLetterMissions=Formateurs temps (uniquement dans un modéle de type Lettre de missions formateur)
+RefLtrTraineeDoc=Participant (uniquement dans un modéle de type "Document par participants")
+RefLtrAccessHandicapTitle=Accessible aux personnes handicapés
+#
+# Tags lignes
+#
+RefLtrLines=Lignes de documents (propal, commandes, factures et contrats)
+
+#
+# Doc preview
+#
+doceditinfo_viewlimit=Ceci est une vue du gabarit (template), elle permet une vision d'ensemble de votre document. Il ne s'agit pas d'une prévisualisation du rendu final converti en PDF.
+PlaceHere=Placer le chapitre ici
+MoveChapter=Déplacer / réorganiser
+Saved=Sauvegardé
+RefLtrShortCodeAdded=Code ajouté
+RefLtrShortCodeAddError=Erreur, votre curseur n'a pas été trouvé dans dans le block de text, impossible de copier le code !
+
+
+#
+# Erreurs
+#
+RefLtrErrorCannotRecognizeModel=Erreur technique DocEdit : impossible de déterminer le type de modèle
+
