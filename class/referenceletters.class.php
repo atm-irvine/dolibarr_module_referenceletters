@@ -118,6 +118,7 @@ class ReferenceLetters extends CommonObject
 		'import_key' => array('type'=>'varchar(100)', 'label'=>'ImportKey', 'enabled'=>'1', 'position'=>130, 'notnull'=>0, 'visible'=>0,),
 		'fk_user_author' => array('type'=>'integer', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1',),
 		'fk_user_mod' => array('type'=>'integer', 'label'=>'UserMod', 'enabled'=>'1', 'position'=>150, 'notnull'=>1, 'visible'=>0,),
+		'entity' => array('type'=>'integer', 'label'=>'Entity', 'enabled'=>'1', 'position'=>160, 'notnull'=>1, 'visible'=>0, 'default'=>'1',),
 	);
 	public $rowid;
 	public $Ref;
@@ -135,6 +136,7 @@ class ReferenceLetters extends CommonObject
 	public $import_key;
 	public $fk_user_author;
 	public $fk_user_mod;
+	public $entity;
 	// END MODULEBUILDER PROPERTIES
 
 
@@ -1297,31 +1299,348 @@ class ReferenceLetters extends CommonObject
 
 		return $error;
 	}
-}
-
-
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
-
-/**
- * Class ReferenceLettersLine. You can also remove this and generate a CRUD class for lines objects.
- */
-class ReferenceLettersLine extends CommonObjectLine
-{
-	// To complete with content of an object ReferenceLettersLine
-	// We should have a field rowid, fk_referenceletters and position
 
 	/**
-	 * @var int  Does object support extrafields ? 0=No, 1=Yes
-	 */
-	public $isextrafieldmanaged = 0;
-
-	/**
-	 * Constructor
+	 * return translated label of element linked
 	 *
-	 * @param DoliDb $db Database handler
+	 * @param int $mode trans normal, 1 transnoentities
+	 * @return string translated element label
+	 *
 	 */
-	public function __construct(DoliDB $db)
-	{
-		$this->db = $db;
+	public function displayElement($mode = 0) {
+		global $langs;
+
+		if(!empty($this->element_type_list[$this->element_type]['trans'])) $langs->load($this->element_type_list[$this->element_type]['trans']);
+
+		if (empty($mode)) {
+			$label = $langs->trans($this->element_type_list[$this->element_type]['title']);
+		} else {
+			$label = $langs->transnoentities($this->element_type_list[$this->element_type]['title']);
+		}
+		return $label;
 	}
+
+	/**
+	 * return translated label of element linked
+	 *
+	 * @param int $mode trans normal, 1 transnoentities
+	 * @return string translated element label
+	 *
+	 */
+	public function getSubtitutionKey($user) {
+		global $conf, $langs, $mysoc;
+
+		require_once 'commondocgeneratorreferenceletters.class.php';
+		$langs->load('admin');
+
+		$subst_array = array();
+		$docgen = new CommonDocGeneratorReferenceLetters($this->db);
+		$subst_array[$langs->trans('User')] = $docgen->get_substitutionarray_user($user, $langs);
+		$subst_array[$langs->trans('MenuCompanySetup')] = $docgen->get_substitutionarray_mysoc($mysoc, $langs);
+		$subst_array[$langs->trans('Other')] = $docgen->get_substitutionarray_other($langs);
+
+		complete_substitutions_array($subst_array[$langs->trans('Other')], $langs);
+
+		foreach ( $this->element_type_list as $type => $item ) {
+			if ($this->element_type == $type) {
+
+				$langs->load($item['trans']);
+				//var_dump($item);exit;
+				/** @var $testObj CommonObject */
+				require_once $item['classpath'] . $item['class'];
+				$testObj = new $item['objectclass']($this->db);
+
+				$sql = 'SELECT rowid FROM ' . MAIN_DB_PREFIX . $testObj->table_element . ' WHERE entity IN (' . getEntity($conf->entity, 1) . ') ' . $this->db->plimit(1);
+				dol_syslog(get_class($this) . "::" . __METHOD__, LOG_DEBUG);
+				$resql = $this->db->query($sql);
+				if ($resql) {
+					$num = $this->db->num_rows($resql);
+					if ($num > 0) {
+						$obj = $this->db->fetch_object($resql);
+					}
+				}
+				if (! empty($obj->rowid) && $num > 0) {
+					$testObj->fetch($obj->rowid);
+
+					if (method_exists($testObj, 'fetch_thirdparty')) {
+						$testObj->fetch_thirdparty();
+					}
+
+					$array_second_thirdparty_object = array ();
+
+					if($testObj->element == 'societe'){
+						$array_first_thirdparty_object = $docgen->get_substitutionarray_thirdparty($testObj, $langs);
+
+						foreach ($array_first_thirdparty_object as $key => $value) {
+							$array_second_thirdparty_object['cust_' . $key] = $value;
+						}
+						$subst_array[$langs->trans($item['title'])] = $array_second_thirdparty_object;
+					}else {
+						dol_syslog($item['substitution_method']);
+						$subst_array[$langs->trans($item['title'])] = $docgen->{$item['substitution_method']}($testObj, $langs);
+					}
+
+					if (! empty($testObj->thirdparty->id)) {
+						$array_first_thirdparty_object = $docgen->get_substitutionarray_thirdparty($testObj->thirdparty, $langs);
+						foreach ( $array_first_thirdparty_object as $key => $value ) {
+							$array_second_thirdparty_object['cust_' . $key] = $value;
+						}
+					}
+
+					$subst_array[$langs->trans($item['title'])] = array_merge($subst_array[$langs->trans($item['title'])], $array_second_thirdparty_object);
+				} else {
+					$subst_array[$langs->trans($item['title'])] = array (
+						$langs->trans('RefLtrNoneExists', $langs->trans($item['title'])) => $langs->trans('RefLtrNoneExists', $langs->trans($item['title']))
+					);
+				}
+				//TODO : add line replacement
+			}
+		}
+
+		require_once 'referenceletterselements.class.php';
+		$testObj = new ReferenceLettersElements($this->db);
+		$sql = 'SELECT rowid FROM ' . MAIN_DB_PREFIX . $testObj->table_element . ' WHERE entity IN (' . getEntity($conf->entity, 1) . ') ' . $this->db->plimit(1);
+		dol_syslog(get_class($this) . "::" . __METHOD__, LOG_DEBUG);
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$num = $this->db->num_rows($resql);
+			if ($num > 0) {
+				$obj = $this->db->fetch_object($resql);
+			}
+		}
+		if (! empty($obj->rowid) && $num > 0) {
+			$testObj->fetch($obj->rowid);
+
+			$subst_array[$langs->trans('Module103258Name')] = $docgen->get_substitutionarray_refletter($testObj, $langs);
+		} else {
+			$subst_array[$langs->trans('Module103258Name')] = array (
+				$langs->trans('RefLtrNoneExists', $langs->trans($langs->trans('Module103258Name'))) => $langs->trans('RefLtrNoneExists', $langs->trans($langs->trans('Module103258Name')))
+			);
+		}
+
+		//Todo  : a faire seulement sur les object agefodd
+
+		if(!empty($conf->agefodd->enabled)) $this->completeSubtitutionKeyArrayWithAgefoddData($subst_array);
+
+		return $subst_array;
+	}
+
+	public function completeSubtitutionKeyArrayWithAgefoddData(&$subst_array) {
+
+		global $langs;
+
+		// On supprime les clefs que propose automatiquement le module car presque inutiles et on les refait à la main
+		if(isset($subst_array['Agsession'])) unset($subst_array['Agsession']);
+
+		$subst_array[$langs->trans('AgfTrainerMissionLetter')]['objvar_object_formateur_session_lastname'] = 'Nom du formateur';
+		$subst_array[$langs->trans('AgfTrainerMissionLetter')]['objvar_object_formateur_session_firstname'] = 'Prénom du formateur';
+
+		$subst_array[$langs->trans('RefLtrSubstAgefodd')] = array(
+			'formation_nom'=>'Intitulé de la formation'
+		,'formation_nom_custo'=>'Intitulé formation (pour les documents PDF)'
+		,'formation_ref'=>'Référence de la formation'
+		,'formation_statut'=>'Statut de la formation'
+		,'formation_date_debut' => 'Date de début de la formation'
+		,'formation_date_debut_formated' => 'Date de début de la formation mise en forme'
+		,'formation_date_fin' => 'Date de fin de la formation'
+		,'formation_date_fin_formated' => 'Date de fin de la formation mise en forme'
+		,'objvar_object_date_text'=>'Date de la session'
+		,'formation_duree' => 'Durée de la formation'
+		,'formation_duree_session' => 'Durée de la session'
+		,'session_nb_days' => 'Nombre de jours dans le calendrier de la session'
+		,'formation_commercial'=>'commercial en charge de la formation'
+		,'formation_commercial_phone'=>'téléphone commercial en charge de la formation'
+		,'formation_commercial_mail'=>'email commercial en charge de la formation'
+		,'formation_societe'=>'Société concernée'
+		,'formation_but'=>'But de la formation'
+		,'formation_methode'=>'Methode de formation'
+		,'formation_nb_stagiaire'=>'Nombre de stagiaire de la formation'
+		,'formation_type_stagiaire'=>'Caractéristiques des stagiaires'
+		,'formation_documents'=>'Documents nécessaires à la formation'
+		,'formation_equipements'=>'Equipements nécessaires à la formation'
+		,'formation_lieu'=>'Lieu de la formation'
+		,'formation_lieu_adresse'=>'Adresse du lieu de formation'
+		,'formation_lieu_cp'=>'Code postal du lieu de formation'
+		,'formation_lieu_ville'=>'Ville du lieu de formation'
+		,'formation_lieu_acces'=>'Instruction d\'accès au lieu lieu de formation'
+		,'formation_lieu_horaires'=>'Horaires du lieu de formation'
+		,'formation_lieu_notes'=>'Commentaire du lieu de formation'
+		,'formation_lieu_divers'=>'Infos Repas, Hébergements, divers'
+		,'formation_Accessibility_Handicap_label'=>'Titre Accessibilité Handicap'
+		,'formation_Accessibility_Handicap'=>'Accessible aux personnes handicapés'
+		,'objvar_object_trainer_text'=>'Tous les foramteurs séparés par des virgules (Nom prenom)'
+		,'objvar_object_trainer_text_invert'=>'Tous les foramteurs séparés par des virgules (Prenom nom)'
+		,'objvar_object_id'=>'Id de la session'
+		,'objvar_object_dthour_text'=>'Tous les horaires au format texte avec retour à la ligne'
+		,'objvar_object_trainer_day_cost'=>'Cout formateur (cout/nb de creneaux)'
+		,'AgfMentorList'=>'Liste des référents'
+		,'Mentor_administrator'=>'Référent Administratif'
+		,'Mentor_pedagogique'=>'Référent pédagogique'
+		,'Mentor_handicap'	=>'Référent handicap'
+		,'presta_lastname'	=>$langs->trans('PrestaLastname')
+		,'presta_firstname'	=>$langs->trans('PrestaFirstname')
+		,'presta_soc_name'	=>$langs->trans('PrestaSocName')
+		,'presta_soc_id' 	=> $langs->trans('PrestaSocId')
+		,'presta_soc_name_alias'	=> $langs->trans('PrestaSocNameAlias')
+		,'presta_soc_code_client'	=> $langs->trans('PrestaSocCode')
+		,'presta_soc_code_fournisseur'	=> $langs->trans('PrestaSocSupplier')
+		,'presta_soc_email'	=> $langs->trans('PrestaSocEmail')
+		,'presta_soc_phone'	=> $langs->trans('PrestaSocPhone')
+		,'presta_soc_fax'	=> $langs->trans('PrestaSocFax')
+		,'presta_soc_address'	=> $langs->trans('PrestaSocAddress')
+		,'presta_soc_zip'	=> $langs->trans('PrestaSocZip')
+		,'presta_soc_town'	=> $langs->trans('PrestaSocTown')
+		,'presta_soc_country_id'	=> $langs->trans('PrestaSocCountryId')
+		,'presta_soc_country_code'	=> $langs->trans('PrestaSocCountryCode')
+		,'presta_soc_idprof1'	=> $langs->trans('PrestaSocIdprof1')
+		,'presta_soc_idprof2'	=> $langs->trans('PrestaSocIdprof2')
+		,'presta_soc_idprof3'	=> $langs->trans('PrestaSocIdprof3')
+		,'presta_soc_idprof4'	=> $langs->trans('PrestaSocIdprof4')
+		,'presta_soc_idprof5'	=> $langs->trans('PrestaSocIdprof5')
+		,'presta_soc_idprof6'	=> $langs->trans('PrestaSocIdprof6')
+		,'presta_soc_tvaintra'	=> $langs->trans('PrestaSocTvaIntra')
+		,'presta_soc_note_public'	=> $langs->trans('PrestaSocNotePublic')
+		,'presta_soc_note_private'	=> $langs->trans('PrestaSocNotePrivate')
+		);
+
+		// Liste de données - Participants
+		$subst_array[$langs->trans('RefLtrSubstAgefoddListParticipants')] = array(
+			'line_civilite'=>'Civilité'
+		,'line_nom'=>'Nom participant'
+		,'line_prenom'=>'Prénom participant'
+		,'line_nom_societe'=>'Société du participant'
+		,'line_poste'=>'Poste occupé au sein de sa société'
+		,'line_mail' => 'Email du participant'
+		,'line_siret' => 'SIRET de la société du participant'
+		,'line_birthday' => 'Date de naissance du participant'
+		,'line_birthplace'=>'Lieu de naissance du participant'
+		,'line_code_societe'=> 'Code de la société du participant'
+		,'line_nom_societe'=> 'Nom du client du participant'
+		,'line_stagiaire_presence_total' => 'Temps de présence total stagiare'
+
+		);
+
+		// Liste de données - Horaires
+		$subst_array[$langs->trans('RefLtrSubstAgefoddListHoraires')] = array(
+			'line_date_session'=>'Date de la session'
+		,'line_heure_debut_session'=>'Heure début session'
+		,'line_heure_fin_session'=>'Heure fin session'
+		);
+
+		// Liste de données - Formateurs
+		$subst_array[$langs->trans('RefLtrSubstAgefoddListFormateurs')] = array(
+			'line_formateur_nom'=>'Nom du formateur'
+		,'line_formateur_prenom'=>'Prénom du formateur'
+		,'line_formateur_phone'=>'Téléphone du formateur'
+		,'line_formateur_mail'=>'Adresse mail du formateur'
+		,'line_formateur_statut'=>'Statut du formateur (Présent, Confirmé, etc...)'
+		);
+
+		$subst_array[$langs->trans('RefLtrSubstAgefoddStagiaire')] = array(
+			'objvar_object_stagiaire_civilite'=>'Civilité du stagiaire'
+		,'objvar_object_stagiaire_nom'=>'Nom du stagiaire'
+		,'objvar_object_stagiaire_prenom'=>'Prénom du stagiaire'
+		,'objvar_object_stagiaire_mail'=>'Email du stagiaire'
+		,'stagiaire_presence_total' => 'Temps de présence total',
+		);
+
+		// Tags des lignes
+		$subst_array[$langs->trans('RefLtrLines')] = array(
+			'line_fulldesc'=>'Description complète',
+			'line_product_ref'=>'Référence produit',
+			'line_product_ref_fourn'=>'Référence produit fournisseur (pour les documents fournisseurs)',
+			'line_product_label'=>'Libellé produit',
+			'line_product_type'=>'Type produit',
+			'line_desc'=>'Description',
+			'line_vatrate'=>'Taux de TVA',
+			'line_up'=>'Prix unitaire (format numérique)',
+			'line_multicurrency_subprice'=>'Prix unitaire devisé (format numérique)',
+			'line_up_locale'=>'Prix unitaire (format prix)',
+			'line_multicurrency_subprice_locale'=>'Prix unitaire devisé (format prix)',
+			'line_qty'=>'Qté ligne',
+			'line_discount_percent'=>'Remise ligne',
+			'line_price_ht'=>'Total HT ligne (format numérique)',
+			'line_multicurrency_total_ht'=>'Total HT ligne devisé (format numérique)',
+			'line_price_ttc'=>'Total TTC ligne (format numérique)',
+			'line_multicurrency_total_ttc'=>'Total TTC ligne devisé (format numérique)',
+			'line_price_ht_locale'=>'Total HT ligne (format prix)',
+			'line_multicurrency_total_ht_locale'=>'Total HT ligne devisé (format prix)',
+			'line_price_ttc_locale'=>'Total TTC ligne (format prix)',
+			'line_multicurrency_total_ttc_locale'=>'Total TTC ligne devisé (format prix)',
+			'line_price_vat'=>'Montant TVA (format numérique)',
+			'line_price_vat_locale'=>'Montant TVA (format prix)',
+
+			// Dates
+			'line_date_start'=>'Date début service',
+			'line_date_start_locale'=>'Date début service format 1',
+			'line_date_start_rfc'=>'Date début service format 2',
+			'line_date_end'=>'Date fin service',
+			'line_date_end_locale'=>'Date fin service format 1',
+			'line_date_end_rfc'=>'Date fin service format 2',
+		);
+
+		$subst_array[$langs->trans('RefLtrSubstConvention')]=array(
+			'objvar_object_signataire_intra'=>'Nom du signataire des intra-entreprise (contact session)',
+			'objvar_object_signataire_intra_poste'=>'Poste du signataire des intra-entreprise (contact session)',
+			'objvar_object_signataire_intra_mail'=>'Mail du signataire des intra-entreprise (contact session)',
+			'objvar_object_signataire_intra_phone'=>'Téléphone du signataire des intra-entreprise (contact session)',
+			'objvar_object_signataire_inter'=>'Nom des signataires des inter-entreprise (signataire sur le participants)',
+			'objvar_object_signataire_inter_poste'=>'Poste des signataires des inter-entreprise (signataire sur le participants)',
+			'objvar_object_signataire_inter_mail'=>'Mail des signataires des inter-entreprise (signataire sur le participants)',
+			'objvar_object_signataire_inter_phone'=>'Téléphone des signataires des inter-entreprise (signataire sur le participants)',
+			'objvar_object_convention_notes'=>'commentaire de la convention',
+			'objvar_object_convention_id'=>'identifiant unique de la convention',
+			'objvar_object_signataire_intra_prof1'=>'siret du signataire',
+			'objvar_object_signataire_intra_prof2'=>'siren du signataire',
+
+		);
+
+		$subst_array[$langs->trans('RefLtrTStagiairesSessionConvention')]=array(
+			'line_civilite'=>'Civilité'
+		,'line_nom'=>'Nom participant'
+		,'line_prenom'=>'Prénom participant'
+		,'line_nom_societe'=>'Société du participant'
+		,'line_poste'=>'Poste occupé au sein de sa société'
+		,'line_type'=>'Type de financement'
+		);
+
+		$subst_array[$langs->trans('RefLtrTrainerLetterMissions')]=array(
+			'trainer_datehourtextline'=>'Horaire(s) calendrier formateur'
+		,'trainer_datetextline'=>'Date(s) calendrier formateur'
+		,'formation_agenda_ics' => 'Lien ICS de l\'agenda du formateur'
+		,'formation_agenda_ics_url' => 'URL du lien ICS de l\'agenda du formateur'
+		);
+
+		$subst_array[$langs->trans('RefLtrTraineeDoc')]=array(
+			'stagiaire_presence_total'=> 'Nombre d heure de présence par participants'
+		,'stagiaire_presence_bloc'=> 'Présentation en bloc des heures de présences participants'
+		,'stagiaire_temps_realise_total'=> 'Nombre d heure des sessions au statut "Réalisé"'
+		,'stagiaire_temps_att_total'=> 'Nombre d heure des sessions au statut "Annulé trop tard"'
+		,'stagiaire_temps_realise_att_total'=> 'Nombre d heure des sessions au statut "Réalisé" + "Annulé trop tard"'
+		,'formation_agenda_ics' => 'Lien ICS de l\'agenda des participants'
+		,'formation_agenda_ics_url' => 'URL du lien ICS de l\'agenda des participants'
+		);
+
+		// Réservé aux lignes de contrats
+		$subst_array[$langs->trans('RefLtrLines')]['date_ouverture'] = 'Date démarrage réelle (réservé aux contrats)';
+		$subst_array[$langs->trans('RefLtrLines')]['date_ouverture_prevue'] = 'Date prévue de démarrage (réservé aux contrats)';
+		$subst_array[$langs->trans('RefLtrLines')]['date_fin_validite'] = 'Date fin réelle (réservé aux contrats)';
+
+
+	}
+
+	/**
+	 * return translated label of element linked
+	 *
+	 * @param int $mode trans normal, 1 transnoentities
+	 * @return string translated element label
+	 *
+	 */
+	public function displayElementElement($mode = 0, $element_type = '') {
+		global $langs;
+
+		$this->element_type = $element_type;
+		return $this->displayElement($mode);
+	}
+
 }
