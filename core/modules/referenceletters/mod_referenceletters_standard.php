@@ -28,7 +28,7 @@ dol_include_once('/referenceletters/core/modules/referenceletters/modules_test.p
 /**
  *	Class to manage customer order numbering rules standard
  */
-class mod_test_standard extends ModeleNumRefTest
+class mod_referenceletters_standard extends ModeleNumRefTest
 {
 	/**
 	 * Dolibarr version of the loaded document
@@ -36,7 +36,7 @@ class mod_test_standard extends ModeleNumRefTest
 	 */
 	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
 
-	public $prefix = 'TEST';
+	public $prefix = 'RL';
 
 	/**
 	 * @var string Error code (or message)
@@ -87,7 +87,7 @@ class mod_test_standard extends ModeleNumRefTest
 
 		$posindice = strlen($this->prefix) + 6;
 		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED)) as max";
-		$sql .= " FROM ".MAIN_DB_PREFIX."referenceletters_test";
+		$sql .= " FROM ".MAIN_DB_PREFIX."referenceletters_referenceletters";
 		$sql .= " WHERE ref LIKE '".$db->escape($this->prefix)."____-%'";
 		if ($object->ismultientitymanaged == 1) {
 			$sql .= " AND entity = ".$conf->entity;
@@ -124,7 +124,7 @@ class mod_test_standard extends ModeleNumRefTest
 		// first we get the max value
 		$posindice = strlen($this->prefix) + 6;
 		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED)) as max";
-		$sql .= " FROM ".MAIN_DB_PREFIX."referenceletters_test";
+		$sql .= " FROM ".MAIN_DB_PREFIX."referenceletters_referenceletters";
 		$sql .= " WHERE ref LIKE '".$db->escape($this->prefix)."____-%'";
 		if ($object->ismultientitymanaged == 1) {
 			$sql .= " AND entity = ".$conf->entity;

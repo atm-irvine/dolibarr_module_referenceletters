@@ -101,7 +101,7 @@ class ReferenceLetters extends CommonObject
 	 */
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
-		'Ref' => array('type'=>'varchar(128)', 'label'=>'Ref', 'enabled'=>'1', 'position'=>10, 'notnull'=>1, 'visible'=>4, 'noteditable'=>'1', 'default'=>'(PROV)', 'index'=>1, 'searchall'=>1, 'validate'=>'1', 'comment'=>"Reference of object"),
+		'ref' => array('type'=>'varchar(128)', 'label'=>'Ref', 'enabled'=>'1', 'position'=>10, 'notnull'=>1, 'visible'=>4, 'noteditable'=>'1', 'default'=>'(PROV)', 'index'=>1, 'searchall'=>1, 'validate'=>'1', 'comment'=>"Reference of object"),
 		'element_type' => array('type'=>'varchar(50)', 'label'=>'RefLtrElement', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>1,),
 		'title' => array('type'=>'varchar(100)', 'label'=>'Title', 'enabled'=>'1', 'position'=>30, 'notnull'=>1, 'visible'=>1,),
 		'use_landscape_format' => array('type'=>'integer', 'label'=>'UseLandscapeFormat', 'enabled'=>'1', 'position'=>40, 'notnull'=>0, 'visible'=>1, 'default'=>'1', 'arrayofkeyval'=>array('0'=>'Oui', '1'=>'Non'),),
@@ -1211,6 +1211,8 @@ class ReferenceLetters extends CommonObject
 
 		return $result;
 	}
+
+
 
 	/**
 	 * Action executed by scheduler
