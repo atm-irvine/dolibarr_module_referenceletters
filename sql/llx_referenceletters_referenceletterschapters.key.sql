@@ -15,12 +15,12 @@
 
 
 -- BEGIN MODULEBUILDER INDEXES
-ALTER TABLE llx_referenceletters_referenceletters ADD INDEX idx_referenceletters_referenceletters_rowid (rowid);
-ALTER TABLE llx_referenceletters_referenceletters ADD INDEX idx_referenceletters_referenceletters_ref (ref);
-ALTER TABLE llx_referenceletters_referenceletters ADD INDEX idx_referenceletters_referenceletters_status (status);
+ALTER TABLE llx_referenceletters_referenceletterschapters ADD INDEX idx_referenceletters_chapters_fk_referenceletters (fk_referenceletters);
+ALTER TABLE llx_referenceletters_referenceletterschapters ADD CONSTRAINT ibfk_referenceletters_chapters_fk_referenceletters FOREIGN KEY (fk_referenceletters) REFERENCES llx_referenceletters (rowid);
+
 -- END MODULEBUILDER INDEXES
 
---ALTER TABLE llx_referenceletters_referenceletters ADD UNIQUE INDEX uk_referenceletters_referenceletters_fieldxy(fieldx, fieldy);
+--ALTER TABLE llx_referenceletters_referenceletterschapters ADD UNIQUE INDEX uk_referenceletters_referenceletterschapters_fieldxy(fieldx, fieldy);
 
---ALTER TABLE llx_referenceletters_referenceletters ADD CONSTRAINT llx_referenceletters_referenceletters_fk_field FOREIGN KEY (fk_field) REFERENCES llx_referenceletters_myotherobject(rowid);
+--ALTER TABLE llx_referenceletters_referenceletterschapters ADD CONSTRAINT llx_referenceletters_referenceletterschapters_fk_field FOREIGN KEY (fk_field) REFERENCES llx_referenceletters_myotherobject(rowid);
 

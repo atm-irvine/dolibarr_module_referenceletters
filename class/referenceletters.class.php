@@ -118,7 +118,7 @@ class ReferenceLetters extends CommonObject
 		'fk_user_mod' => array('type'=>'integer', 'label'=>'UserMod', 'enabled'=>'1', 'position'=>150, 'notnull'=>1, 'visible'=>0,),
 	);
 	public $rowid;
-	public $Ref;
+	public $ref;
 	public $element_type;
 	public $title;
 	public $use_landscape_format;
