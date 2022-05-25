@@ -525,7 +525,7 @@ class ReferenceLettersTools {
 		global $langs,$db;
 
 		$form = new Form($db);
-		$html=$this->getSubtitutionKeyTable($user,$reflettersobject);
+		$html=$form->getSubtitutionKeyTable($user,$reflettersobject);
 
 		return $form->textwithpicto($langs->trans("RefLtrDisplayTag"), $html, 1, 'help', '', 0, 2, 'refltertags');
 	}
@@ -756,6 +756,4 @@ class ReferenceLettersTools {
 		$out .=  '</div>';
 		return $out;
 	}
-
-
 }
