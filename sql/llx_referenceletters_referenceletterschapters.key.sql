@@ -15,9 +15,8 @@
 
 
 -- BEGIN MODULEBUILDER INDEXES
-ALTER TABLE llx_referenceletters_referenceletterschapters ADD INDEX idx_referenceletters_chapters_fk_referenceletters (fk_referenceletters);
-ALTER TABLE llx_referenceletters_referenceletterschapters ADD CONSTRAINT ibfk_referenceletters_chapters_fk_referenceletters FOREIGN KEY (fk_referenceletters) REFERENCES llx_referenceletters (rowid);
-
+ALTER TABLE llx_referenceletters_referenceletterschapters ADD INDEX idx_referenceletters_referenceletterschapters_rowid (rowid);
+ALTER TABLE llx_referenceletters_referenceletterschapters ADD CONSTRAINT llx_referenceletters_referenceletterschapters_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
 -- END MODULEBUILDER INDEXES
 
 --ALTER TABLE llx_referenceletters_referenceletterschapters ADD UNIQUE INDEX uk_referenceletters_referenceletterschapters_fieldxy(fieldx, fieldy);

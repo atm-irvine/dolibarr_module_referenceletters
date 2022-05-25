@@ -103,15 +103,14 @@ class ReferenceLettersChapters extends CommonObject
 	 */
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
-		'entity' => array('type'=>'integer', 'label'=>'Entity', 'enabled'=>'1', 'position'=>10, 'notnull'=>1, 'visible'=>0, 'default'=>'1',),
 		'fk_referenceletters' => array('type'=>'integer:ReferenceLetters:custom/referenceletters/class/referenceletters.class.php', 'label'=>'ReferenceLetters', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>0,),
 		'lang' => array('type'=>'varchar(5)', 'label'=>'Lang', 'enabled'=>'1', 'position'=>30, 'notnull'=>1, 'visible'=>0,),
-		'sort_order' => array('type'=>'integer', 'label'=>'SortOrder', 'enabled'=>'1', 'position'=>40, 'notnull'=>1, 'visible'=>0, 'default'=>'1',),
-		'title' => array('type'=>'varchar(100)', 'label'=>'Title', 'enabled'=>'1', 'position'=>50, 'notnull'=>1, 'visible'=>0,),
-		'content_text' => array('type'=>'text', 'label'=>'ContentText', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>0,),
-		'options_text' => array('type'=>'text', 'label'=>'OptionText', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>0,),
-		'readonly' => array('type'=>'integer', 'label'=>'ReadOnly', 'enabled'=>'1', 'position'=>80, 'notnull'=>1, 'visible'=>0, 'default'=>'0',),
-		'same_page' => array('type'=>'integer', 'label'=>'SamePage', 'enabled'=>'1', 'position'=>90, 'notnull'=>1, 'visible'=>0, 'default'=>'0',),
+		'sort_order' => array('type'=>'integer', 'label'=>'SortOrder', 'enabled'=>'1', 'position'=>40, 'notnull'=>1, 'visible'=>1, 'default'=>'1',),
+		'title' => array('type'=>'varchar(100)', 'label'=>'Title', 'enabled'=>'1', 'position'=>50, 'notnull'=>1, 'visible'=>1,),
+		'content_text' => array('type'=>'text', 'label'=>'ContentText', 'enabled'=>'1', 'position'=>60, 'notnull'=>1, 'visible'=>1,),
+		'options_text' => array('type'=>'text', 'label'=>'OptionText', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>1,),
+		'readonly' => array('type'=>'integer', 'label'=>'ReadOnly', 'enabled'=>'1', 'position'=>80, 'notnull'=>1, 'visible'=>1,),
+		'same_page' => array('type'=>'integer', 'label'=>'SamePage', 'enabled'=>'1', 'position'=>90, 'notnull'=>1, 'visible'=>1,),
 		'import_key' => array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>'1', 'position'=>100, 'notnull'=>-1, 'visible'=>-2,),
 		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'picto'=>'user', 'enabled'=>'1', 'position'=>110, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
 		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>120, 'notnull'=>1, 'visible'=>-2,),
@@ -119,11 +118,6 @@ class ReferenceLettersChapters extends CommonObject
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>-2,),
 	);
 	public $rowid;
-	public $date_creation;
-	public $tms;
-	public $fk_user_creat;
-	public $fk_user_modif;
-	public $import_key;
 	public $fk_referenceletters;
 	public $lang;
 	public $sort_order;
@@ -132,6 +126,11 @@ class ReferenceLettersChapters extends CommonObject
 	public $options_text;
 	public $readonly;
 	public $same_page;
+	public $import_key;
+	public $fk_user_creat;
+	public $date_creation;
+	public $fk_user_modif;
+	public $tms;
 	// END MODULEBUILDER PROPERTIES
 
 

@@ -16,20 +16,19 @@
 
 CREATE TABLE llx_referenceletters_referenceletterschapters(
 	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    entity integer DEFAULT 1 NOT NULL,
-    fk_referenceletters integer NOT NULL,
-    lang varchar(5) NOT NULL,
-    sort_order integer DEFAULT 1 NOT NULL,
-    title varchar(100) NOT NULL,
-    content_text text,
-    options_text text,
-    readonly integer NOT NULL,
-    same_page integer NOT NULL,
-    import_key varchar(14),
-    fk_user_creat integer NOT NULL,
-    date_creation datetime NOT NULL,
-    fk_user_modif integer,
-    tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+	fk_referenceletters integer NOT NULL, 
+	lang varchar(5) NOT NULL, 
+	sort_order integer DEFAULT 1 NOT NULL, 
+	title varchar(100) NOT NULL, 
+	content_text text NOT NULL, 
+	options_text text, 
+	readonly integer NOT NULL, 
+	same_page integer NOT NULL, 
+	import_key varchar(14), 
+	fk_user_creat integer NOT NULL, 
+	date_creation datetime NOT NULL, 
+	fk_user_modif integer, 
+	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
