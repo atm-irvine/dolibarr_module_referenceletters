@@ -712,6 +712,7 @@ class ReferenceLettersTools {
                             if (nb > 0) $(this).addClass("badge-primary").removeClass("badge-secondary");
                             else $(this).addClass("badge-secondary").removeClass("badge-primary");
                         });
+
                    }
                    updateBadgeCount();
 

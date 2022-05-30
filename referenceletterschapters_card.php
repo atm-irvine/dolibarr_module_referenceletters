@@ -79,7 +79,9 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 dol_include_once('/referenceletters/class/referenceletterschapters.class.php');
+dol_include_once('/referenceletters/class/referenceletters.class.php');
 dol_include_once('/referenceletters/lib/referenceletters_referenceletterschapters.lib.php');
+dol_include_once('/referenceletters/class/referenceletters_tools.class.php');
 
 // Load translation files required by the page
 $langs->loadLangs(array("referenceletters@referenceletters", "other"));
@@ -88,6 +90,7 @@ $langs->loadLangs(array("referenceletters@referenceletters", "other"));
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $lineid   = GETPOST('lineid', 'int');
+$idletter = GETPOST('idletter', 'int');
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -99,6 +102,7 @@ $dol_openinpopup = GETPOST('dol_openinpopup', 'aZ09');
 
 // Initialize technical objects
 $object = new ReferenceLettersChapters($db);
+$object_refletter = new ReferenceLetters($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->referenceletters->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('referenceletterschapterscard', 'globalcard')); // Note that conf->hooks_modules contains array
@@ -179,6 +183,38 @@ if (empty($reshook)) {
 
 	$triggermodname = 'REFERENCELETTERS_REFERENCELETTERSCHAPTERS_MODIFY'; // Name of trigger action code to execute when we modify record
 
+
+	if($action == 'create'){
+		if (!empty($idletter)) {
+			$result=$object_refletter->fetch($idletter);
+			if ($result < 0) {
+				setEventMessage($object->error, 'errors');
+			}
+		} else {
+			setEventMessage('Page call wtih wrong argument', 'errors');
+		}
+	}
+	if($action=='edit'){
+		if(!empty($id)) {
+			$result=$object->fetch($id);
+			if ($result < 0) {
+				setEventMessage($object->error, 'errors');
+			}
+			$result=$object_refletter->fetch($object->fk_referenceletters);
+			if ($result < 0) {
+				setEventMessage($object->error, 'errors');
+			}
+		}
+
+	}
+
+	if($action == 'add') {
+		if (!empty($idletter)) {
+			$object->fk_referenceletters = $idletter;
+			//TODO : gérer l'erreur "Column 'fk_referenceletters' cannot be null"
+		}
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -220,10 +256,11 @@ if (empty($reshook)) {
 $form = new Form($db);
 $formfile = new FormFile($db);
 $formproject = new FormProjets($db);
+$arrayofcss = array('/referenceletters/css/view_documents.css?v='.time());
 
 $title = $langs->trans("ReferenceLettersChapters");
 $help_url = '';
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '',0,0,array(),$arrayofcss);
 
 // Example : Adding jquery code
 // print '<script type="text/javascript">
@@ -272,6 +309,18 @@ if ($action == 'create') {
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
+
+	$referenceletterstools = new ReferenceLettersTools();
+
+	print '<tr>';
+	print '<td width="20%">';
+	print $langs->trans('RefLtrTag');
+	print '</td>';
+	print '<td>';
+	print $langs->trans("RefLtrDisplayTag").'<span class="docedit_shortcode classfortooltip" data-target="#content_text"  ><span class="fa fa-code marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('DisplaySubtitutionTable').'" title="'.$langs->trans('DisplaySubtitutionTable').'"></span></span>';
+	print $referenceletterstools::displaySubtitutionKeyAdvanced($user, $object_refletter);
+	print '</td>';
+	print '</tr>';
 
 	print '</table>'."\n";
 
