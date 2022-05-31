@@ -507,8 +507,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '<span class="docedit_infos_icon docedit_setbool classfortooltip" data-field="same_page" data-id="'.$line_chapter->id.'" data-valtoset="'.(!$line_chapter->same_page).'"  ><span class="fa '.(empty($line_chapter->same_page)?'fa-toggle-off':'fa-toggle-on').' marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('RefLtrUnsecable').'" title="'.$langs->trans('RefLtrUnsecable').'"></span></span>';
 					}
 
-					print '<a  href="'.dol_buildpath('/referenceletters/chapter.php', 1).'?id=' . $line_chapter->id . '&action=edit">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
-					print '<a class="docedit_infos_icon classfortooltip" href="'.dol_buildpath('/referenceletters/chapter.php', 1).'?id=' . $line_chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+					print '<a  href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1).'?id=' . $line_chapter->id . '&action=edit">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
+					print '<a class="docedit_infos_icon classfortooltip" href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1).'?id=' . $line_chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 
 				}
 

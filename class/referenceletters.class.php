@@ -1159,6 +1159,7 @@ class ReferenceLetters extends CommonObject
 				return '';
 			}
 
+
 			if (class_exists($classname)) {
 				$obj = new $classname();
 				$numref = $obj->getNextValue($this);

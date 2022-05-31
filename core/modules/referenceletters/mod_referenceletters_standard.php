@@ -22,13 +22,13 @@
  *  \ingroup    referenceletters
  *  \brief      File of class to manage Test numbering rules standard
  */
-dol_include_once('/referenceletters/core/modules/referenceletters/modules_test.php');
+dol_include_once('/referenceletters/core/modules/referenceletters/modules_referenceletters.php');
 
 
 /**
  *	Class to manage customer order numbering rules standard
  */
-class mod_referenceletters_standard extends ModeleNumRefTest
+class mod_referenceletters_standard extends ModeleNumReferenceletters
 {
 	/**
 	 * Dolibarr version of the loaded document

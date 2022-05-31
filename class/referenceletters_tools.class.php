@@ -735,7 +735,7 @@ class ReferenceLettersTools {
 			$out = '<div class="sortable sortabledisable docedit_document_pagebreak"  data-sortable-chapter="'.$chapter->id.'" >';
 			$out.= $langs->trans('RefLtrAddPageBreakWithoutHeader');
 			if ($mode=='view') {
-				$out.= '<a href="'.dol_buildpath('/referenceletters/chapter.php',1).'?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+				$out.= '<a href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php',1).'?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 			}
 		}
 		elseif ($chapter->content_text=='@breakpage@')
@@ -743,7 +743,7 @@ class ReferenceLettersTools {
 			$out = '<div class="sortable sortabledisable docedit_document_pagebreak"  data-sortable-chapter="'.$chapter->id.'" >';
 			$out.= $langs->trans('RefLtrPageBreak');
 			if ($mode=='view') {
-				$out.= '<a href="' . dol_buildpath('/referenceletters/chapter.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+				$out.= '<a href="' . dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 			}
 		}
 		elseif (strpos($chapter->content_text,'@pdfdoc')===0) {
@@ -751,7 +751,7 @@ class ReferenceLettersTools {
 			$out = '<div class="sortable sortabledisable docedit_pdfmodel"  data-sortable-chapter="'.$chapter->id.'" >';
 			$out .= img_pdf($langs->trans('RefLtrPDFDoc')) . $langs->trans('RefLtrPDFDoc').' ('.$documentModel.')';
 			if ($mode == 'view') {
-				$out .= '<a href="' . dol_buildpath('/referenceletters/chapter.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+				$out .= '<a href="' . dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 			}
 		}
 		$out .=  '</div>';
