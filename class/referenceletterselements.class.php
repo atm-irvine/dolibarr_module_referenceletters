@@ -797,7 +797,7 @@ class ReferenceLettersElements extends CommonObject
 
 		$result = '';
 
-		$url = dol_buildpath('/referenceletters/referenceletters/instance.php', 1) . '?id=' . $this->fk_element . '&amp;element_type=' . $this->element_type;
+		$url = dol_buildpath('/referenceletters/instance.php', 1) . '?id=' . $this->fk_element . '&amp;element_type=' . $this->element_type;
 
 		$result = '<a href="' . $url . '">' . ((! empty($withpicto)) ? img_pdf($this->ref_int) : '') . $this->ref_int . '</a>';
 

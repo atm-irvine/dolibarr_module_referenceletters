@@ -66,3 +66,49 @@ function referencelettersAdminPrepareHead()
 
 	return $head;
 }
+
+function referenceletterPrepareHead($object) {
+	global $langs, $conf;
+
+	$langs->load("referenceletters@referenceletters");
+
+	$h = 0;
+	$head = array();
+
+	$head[$h][0] = dol_buildpath("/referenceletters/referenceletters_card.php", 1) . '?id=' . $object->id;
+	$head[$h][1] = $langs->trans("Card");
+	$head[$h][2] = 'card';
+	$h ++;
+
+	$head[$h][0] = dol_buildpath("/referenceletters/header.php", 1) . '?id=' . $object->id;
+	$head[$h][1] = $langs->trans("RefLtrHeaderTab");
+	$head[$h][2] = 'head';
+	$h ++;
+
+	$head[$h][0] = dol_buildpath("/referenceletters/footer.php", 1) . '?id=' . $object->id;
+	$head[$h][1] = $langs->trans("RefLtrFooterTab");
+	$head[$h][2] = 'foot';
+	$h ++;
+
+	$head[$h][0] = dol_buildpath("/referenceletters/background.php", 1) . '?id=' . $object->id;
+	$head[$h][1] = $langs->trans("RefLtrBackground");
+	$head[$h][2] = 'background';
+	$h ++;
+
+	$head[$h][0] = dol_buildpath("/referenceletters/info.php", 1) . '?id=' . $object->id;
+	$head[$h][1] = $langs->trans("Info");
+	$head[$h][2] = 'info';
+	$h ++;
+
+	// Show more tabs from modules
+	// Entries must be declared in modules descriptor with line
+	// $this->tabs = array(
+	// 'entity:+tabname:Title:@referenceletters:/referenceletters/mypage.php?id=__ID__'
+	// ); // to add new tab
+	// $this->tabs = array(
+	// 'entity:-tabname:Title:@referenceletters:/referenceletters/mypage.php?id=__ID__'
+	// ); // to remove a tab
+	complete_head_from_modules($conf, $langs, $object, $head, $h, 'referenceletters');
+
+	return $head;
+}

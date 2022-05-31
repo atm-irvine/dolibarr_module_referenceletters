@@ -79,6 +79,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 dol_include_once('/referenceletters/class/referenceletters.class.php');
+dol_include_once('/referenceletters/class/referenceletterschapters.class.php');
+dol_include_once('/referenceletters/class/referenceletters_tools.class.php');
 dol_include_once('/referenceletters/lib/referenceletters_referenceletters.lib.php');
 
 
@@ -99,6 +101,18 @@ $dol_openinpopup = GETPOST('dol_openinpopup', 'aZ09');
 
 // Initialize technical objects
 $object = new ReferenceLetters($db);
+$object_chapters = new ReferenceLettersChapters($db);
+$object_tools = new ReferenceLettersTools($db);
+if(!empty($id)) {
+	$result=$object->fetch($id);
+	if ($result < 0) {
+		setEventMessage($object->error, 'errors');
+	}
+	$TChaptersLines=$object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' => $object->id));
+	if ($result < 0) {
+		setEventMessage($object->error, 'errors');
+	}
+}
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->referenceletters->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('referenceletterscard', 'globalcard')); // Note that conf->hooks_modules contains array
@@ -195,10 +209,11 @@ if (empty($reshook)) {
 $form = new Form($db);
 $formfile = new FormFile($db);
 $formproject = new FormProjets($db);
+$arrayofcss = array('/referenceletters/css/view_documents.css?v='.time());
 
 $title = $langs->trans("ReferenceLetters");
 $help_url = '';
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '', 0, 0, array(), $arrayofcss);
 
 if($action == 'create' || $action == 'edit') {
 	$selectElementType = selectElementType();
@@ -420,6 +435,314 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+
+	if (is_array($TChaptersLines) && count($TChaptersLines)>0) {
+		$pageCurrentNum = 1;
+
+		print '<div class="underbanner clearboth"></div>';
+		print '<div  id="sortablezone" class="docedit_docboard">';
+
+		print '<div class="info">'.$langs->trans('doceditinfo_viewlimit').'</div>';
+		$classOrientation = "portrait";
+		if(!empty($object->use_landscape_format))
+		{
+			$classOrientation = "landscape";
+		}
+
+		print '<div id="page_'.$pageCurrentNum.'"  class="docedit_document '.$classOrientation.'" data-page="'.$pageCurrentNum.'" >';
+
+		$object_tools::_print_docedit_header($object);
+		$nbChapterInPage = 0;
+		$nofooternext=false;
+		foreach ($TChaptersLines as $line_chapter) {
+			$TIsSprecialChapter=$line_chapter->isSpecialChapters();
+			if (count($TIsSprecialChapter)>1) {
+				// reset nb chapters in page
+				$nbChapterInPage = 0;
+
+				// first close page
+				if (!$nofooternext) {
+					$object_tools::_print_docedit_footer($object);
+
+				} else {
+					$nofooternext=false;
+				}
+				print '</div><!-- END docedit_document -->';
+
+				// add break page element
+				print $object_tools::renderChapterHTML($line_chapter,'view');
+				$norepeat=$line_chapter->isNoRepeat();
+
+				// start new page
+				$pageCurrentNum++;
+				print '<div id="page_'.$pageCurrentNum.'"  class="docedit_document '.$classOrientation.'" data-page="'.$pageCurrentNum.'" >';
+				if (! array_key_exists('nohead',$TIsSprecialChapter)){
+					$object_tools::_print_docedit_header($object, $norepeat);
+				} else {
+					$nofooternext=true;
+				}
+
+			} else {
+				$nbChapterInPage++;
+				$urlToken = '';
+				if (function_exists('newToken')) $urlToken = "&token=".newToken();
+
+				print '<div id="chapter_'.$line_chapter->id.'" class="sortable docedit_document_body docedit_document_bloc" data-sortable-chapter="'.$line_chapter->id.'">';
+
+				// Button and infos
+				print '<div class="docedit_infos docedit_infos_left"><div class="docedit_sticky">';
+
+				if ($user->rights->referenceletters->write) {
+					if(!empty($conf->global->DOCEDIT_CHAPTERS_SORTABLE)){
+						print '<span class="docedit_infos_icon handle classfortooltip" ><span class="fa fa-th marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('MoveChapter').'" title="'.$langs->trans('MoveChapter').'"></span></span>';
+					}
+
+					if(!empty($conf->global->DOCEDIT_CHAPTERS_INLINE_EDITION)){
+						print '<span class="docedit_infos_icon docedit_save classfortooltip" data-target="#chapter_body_text_'.$line_chapter->id.'"  ><span class="fa fa-save marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('Save').'" title="'.$langs->trans('Save').'"></span></span>';
+
+						print '<span class="docedit_infos_icon docedit_shortcode classfortooltip" data-target="#chapter_body_text_'.$line_chapter->id.'"  ><span class="fa fa-code marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('DisplaySubtitutionTable').'" title="'.$langs->trans('DisplaySubtitutionTable').'"></span></span>';
+
+						print '<span class="docedit_infos_icon docedit_setbool classfortooltip" data-field="readonly" data-id="'.$line_chapter->id.'" data-valtoset="'.(!$line_chapter->readonly).'" ><span class="fa '.(empty($line_chapter->readonly)?'fa-toggle-off':'fa-toggle-on').' marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('RefLtrReadOnly').'" title="'.$langs->trans('RefLtrReadOnly').'"></span></span>';
+						print '<span class="docedit_infos_icon docedit_setbool classfortooltip" data-field="same_page" data-id="'.$line_chapter->id.'" data-valtoset="'.(!$line_chapter->same_page).'"  ><span class="fa '.(empty($line_chapter->same_page)?'fa-toggle-off':'fa-toggle-on').' marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('RefLtrUnsecable').'" title="'.$langs->trans('RefLtrUnsecable').'"></span></span>';
+					}
+
+					print '<a  href="'.dol_buildpath('/referenceletters/chapter.php', 1).'?id=' . $line_chapter->id . '&action=edit">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
+					print '<a class="docedit_infos_icon classfortooltip" href="'.dol_buildpath('/referenceletters/chapter.php', 1).'?id=' . $line_chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+
+				}
+
+				print '</div></div><!-- END docedit_infos -->';
+
+				print '<div class="docedit_infos docedit_infos_top">';
+				print '<span class="docedit_title_type" >';
+				print $langs->trans('RefLtrTitle');
+				if (! empty($conf->global->MAIN_MULTILANGS))
+				{
+					$s=picto_from_langcode($line_chapter->lang);
+					print ($s?' '.$s:'');
+				}
+				print ' : </span>';
+				//print $langs->trans('RefLtrTitle');
+				print '<span class="docedit_title" >'. $line_chapter->title.'</span>';
+
+				print '</div><!-- END docedit_infos_top -->';
+
+				//print $langs->trans('RefLtrText');
+				$editInline = '';
+				if(!empty($conf->global->DOCEDIT_CHAPTERS_INLINE_EDITION)  && $user->rights->referenceletters->write ){ $editInline = ' contenteditable="true" '; }
+
+				print '<div class="docedit_document_body_text" '.$editInline.' id="chapter_body_text_'.$line_chapter->id.'" data-id="'.$line_chapter->id.'"  data-type="chapter_text" >';
+				print $line_chapter->content_text;
+				print '</div><!-- END docedit_document_body_text -->';
+
+				if (is_array($line_chapter->options_text) && count($line_chapter->options_text)>0) {
+
+					print '<div class="docedit_document_option">';
+
+					print $langs->trans('RefLtrOption');
+
+					if(!empty($line_chapter->readonly))
+					{
+						print ' <span class="docedit_document_option_read_only" >'.$langs->trans('RefLtrReadOnly').'</span>';
+					}
+
+					foreach($line_chapter->options_text as $key=>$option_text) {
+						print '<label class="docedit_label" ><input type="checkbox" readonly="readonly" disabled="disabled" name="'.$key.'"> '.$option_text.'</label>';
+					}
+					print '</div><!-- END docedit_document_option -->';
+				}
+
+				print '</div><!-- end docedit_document_body -->';
+			}
+		}
+
+		if (!$nofooternext) {
+			$object_tools::_print_docedit_footer($object);
+		}
+
+		print '</div><!-- END docedit_document -->';
+
+		print '</div><!-- end docedit_docboard -->';
+
+		if(!empty($conf->global->DOCEDIT_CHAPTERS_SORTABLE) && $user->rights->referenceletters->write)
+		{
+			print '
+	        <script>$( function() {
+	        $( ".docedit_document" ).sortable({
+                cursor: "move",
+	            placeholder: "ui-state-highlight",
+	            connectWith: ".docedit_document",
+	            items: ".sortable:not(.sortabledisable)",
+	            handle: ".handle",
+                stop: function (event, ui) {
+						$(".slide-placeholder-animator").remove();
+
+						console.log("onstop");
+						console.log(getOrder());
+
+						$.ajax({
+		    	            data: {
+								object_id: '.$object->id.',
+						    	roworder: getOrder(),
+                                set: "sortChapter"
+							},
+		    	            type: "POST",
+                            dataType: "json",
+		    	            url: "'.dol_buildpath('referenceletters/script/interface.php',1).'",
+		    	            success: function(data) {
+               	                console.log(data);
+                                if(data.saved > 0){
+                                    $.jnotify("'.dol_escape_js($langs->transnoentities('Saved')).'");
+                                }else{
+                                    $.jnotify("'.dol_escape_js($langs->transnoentities('Error')).' : " + data.message, "error", 3000);
+                                }
+		    	            }
+		    	        });
+		    	  },
+
+                revert: 150,
+                start: function(e, ui){
+
+                    placeholderHeight = ui.item.outerHeight();
+                    ui.placeholder.height(placeholderHeight + 15);
+                    $(\'<div class="slide-placeholder-animator" data-height="\' + placeholderHeight + \'"></div>\').insertAfter(ui.placeholder);
+
+                },
+                change: function(event, ui) {
+
+                    ui.placeholder.stop().height(0).animate({
+                        height: ui.item.outerHeight() + 15
+                    }, 300);
+
+                    placeholderAnimatorHeight = parseInt($(".slide-placeholder-animator").attr("data-height"));
+
+                    $(".slide-placeholder-animator").stop().height(placeholderAnimatorHeight + 15).animate({
+                        height: 0
+                    }, 300, function() {
+                        $(this).remove();
+                        placeholderHeight = ui.item.outerHeight();
+                        $(\'<div class="slide-placeholder-animator" data-height="\' + placeholderHeight + \'"></div>\').insertAfter(ui.placeholder);
+                    });
+
+                },
+
+	          });
+
+                function getOrder() {
+                    var data = "";
+
+                    $("[data-sortable-chapter]").each(function(){
+                       if(data.length>0){
+                            data += ",";
+                       }
+                       data += $(this).attr("data-sortable-chapter");
+                    });
+                   return data;
+                }
+            ';
+
+
+
+			print '} );</script>';
+		}
+
+		if(!empty($conf->global->DOCEDIT_CHAPTERS_INLINE_EDITION) && $user->rights->referenceletters->write)
+		{
+
+			print '<script>'."\n";
+			// The "instanceCreated" event is fired for every editor instance created.
+			print ' CKEDITOR.on( \'instanceCreated\', function ( event ) {
+
+		                var editor = event.editor, element = editor.element;
+
+			            // Customize the editor configuration on "configLoaded" event,
+			            // which is fired after the configuration file loading and execution.
+			            // This makes it possible to change the configuration before the editor initialization takes place.
+			            editor.on( \'configLoaded\', function () {
+
+		                // Remove redundant plugins to make the editor simpler.
+				        editor.config.removePlugins = \'flash,forms,iframe,newpage,smiley,specialchar,templates\';
+
+		                editor.config.customConfig = ckeditorConfig;
+		                editor.config.readOnly = false;
+		                editor.config.htmlEncodeOutput =false;
+		                editor.config.allowedContent =false;
+		                editor.config.extraAllowedContent = \'\';
+		                editor.config.fullPage = false;
+		                editor.config.toolbarStartupExpanded=false;
+		                editor.config.language= \''.$langs->defaultlang.'\';
+		                editor.config.textDirection= \''.$langs->trans("DIRECTION").'\';
+                        width: element.offsetWidth,
+                        editor.config.filebrowserBrowseUrl = ckeditorFilebrowserBrowseUrl;
+                        editor.config.filebrowserImageBrowseUrl = ckeditorFilebrowserImageBrowseUrl;
+                        editor.config.filebrowserWindowWidth = \'900\';
+                        editor.config.filebrowserWindowHeight = \'500\';
+                        editor.config.filebrowserImageWindowWidth = \'900\';
+                        editor.config.filebrowserImageWindowHeight = \'500\';
+
+                    	// Used for notes fields
+                    	editor.config.toolbar_dolibarr_inline_notes =
+                    	[
+                    	 	[\'SpellChecker\', \'Scayt\'],// \'Cut\',\'Copy\',\'Paste\',\'-\', are useless, can be done with right click, even on smarpthone
+                    	 	[\'Undo\',\'Redo\',\'-\',\'Find\',\'Replace\'],
+                    	    [\'Format\',\'Font\',\'FontSize\'],
+                    	 	[\'Bold\',\'Italic\',\'Underline\',\'Strike\',\'Superscript\',\'-\',\'TextColor\',\'BGColor\',\'RemoveFormat\'],
+                    	 	[\'NumberedList\',\'BulletedList\',\'Outdent\',\'Indent\'],
+                    	 	[\'JustifyLeft\',\'JustifyCenter\',\'JustifyRight\',\'JustifyBlock\'],
+                    	    [\'Link\',\'Unlink\',\'Image\',\'Table\',\'HorizontalRule\',\'SpecialChar\'],
+                    	 	[\'Source\']
+                    	];
+
+		                editor.config.toolbar = editor.config.toolbar_dolibarr_inline_notes;
+
+		            } );
+		    } );
+		    ';
+
+
+			print ' $( function() { ';
+			print '
+                   $(".docedit_save").click(function(btnsave) {
+
+                        var saveTarget = $($(this).data("target"));
+
+                        if(CKEDITOR.instances[saveTarget.attr("id")] != undefined)
+                        {
+                            var evt = CKEDITOR.instances[saveTarget.attr("id")];
+                            // getData() returns CKEditor\'s HTML content.
+                            console.log( evt ); //evt.editor.getData().length
+
+
+                            $.ajax({
+                              method: "POST",
+                              url: "'.dol_buildpath('referenceletters/script/interface.php',1).'",
+                              dataType: "json",
+                              data: { set: "content" , id: saveTarget.data("id") , type: saveTarget.data("type"), content: evt.getData() }
+                            })
+                            .done(function( data ) {
+                                if(data.status){
+                                    $.jnotify("'.dol_escape_js($langs->transnoentities('Saved')).'");
+                                }else{
+                                    $.jnotify("'.dol_escape_js($langs->transnoentities('Error')).' : " + data.message, "error", 3000);
+                                }
+                            });
+
+                        } else{
+                            console.log("Target not found");
+                        }
+
+                   });
+            ';
+
+			print '} );</script>';
+
+			$html = $object_tools::displaySubtitutionKeyAdvanced($user, $object);
+			print $html;
+		}
+	}
+	print '<style>.ui-state-highlight::before { content: "'.$langs->trans('PlaceHere').'"; }</style>';
+	print "</div>\n";
+
 	print dol_get_fiche_end();
 
 	// Buttons for actions
@@ -435,11 +758,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook)) {
 			if ($user->rights->referenceletters->write) {
 				print '<div class="inline-block divButAction">';
-				print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters/card.php', 1) . '?action=addbreakpage&id=' . $object->id . '">' . $langs->trans("RefLtrAddPageBreak") . '</a>';
+				print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters_card.php', 1) . '?action=addbreakpage&id=' . $object->id . '">' . $langs->trans("RefLtrAddPageBreak") . '</a>';
 				if (strpos('rfltr_agefodd_', $object->element_type) == false && (array_key_exists('listmodelfile',$object->element_type_list[$object->element_type]))) {
-					print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters/card.php', 1) . '?action=adddocpdf&id=' . $object->id . '">' . $langs->trans("RefLtrAddPDFDoc") . '</a>';
+					print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters_card.php', 1) . '?action=adddocpdf&id=' . $object->id . '">' . $langs->trans("RefLtrAddPDFDoc") . '</a>';
 				}
-				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletters/card.php',1).'?action=addbreakpagewithoutheader&id='.$object->id.'">' . $langs->trans("RefLtrAddPageBreakWithoutHeader") . '</a>';
+				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletters_card.php',1).'?action=addbreakpagewithoutheader&id='.$object->id.'">' . $langs->trans("RefLtrAddPageBreakWithoutHeader") . '</a>';
 				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php',1).'?action=create&fk_referenceletters='.$object->id.'">' . $langs->trans("RefLtrNewChaters") . '</a>';
 				print "</div><br>";
 				//print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit">' . $langs->trans("Edit") . "</a></div>\n";
@@ -513,3 +836,4 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 // End of page
 llxFooter();
 $db->close();
+

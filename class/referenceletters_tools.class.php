@@ -735,7 +735,7 @@ class ReferenceLettersTools {
 			$out = '<div class="sortable sortabledisable docedit_document_pagebreak"  data-sortable-chapter="'.$chapter->id.'" >';
 			$out.= $langs->trans('RefLtrAddPageBreakWithoutHeader');
 			if ($mode=='view') {
-				$out.= '<a href="'.dol_buildpath('/referenceletters/referenceletters/chapter.php',1).'?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+				$out.= '<a href="'.dol_buildpath('/referenceletters/chapter.php',1).'?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 			}
 		}
 		elseif ($chapter->content_text=='@breakpage@')
@@ -743,7 +743,7 @@ class ReferenceLettersTools {
 			$out = '<div class="sortable sortabledisable docedit_document_pagebreak"  data-sortable-chapter="'.$chapter->id.'" >';
 			$out.= $langs->trans('RefLtrPageBreak');
 			if ($mode=='view') {
-				$out.= '<a href="' . dol_buildpath('/referenceletters/referenceletters/chapter.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+				$out.= '<a href="' . dol_buildpath('/referenceletters/chapter.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 			}
 		}
 		elseif (strpos($chapter->content_text,'@pdfdoc')===0) {
@@ -751,10 +751,95 @@ class ReferenceLettersTools {
 			$out = '<div class="sortable sortabledisable docedit_pdfmodel"  data-sortable-chapter="'.$chapter->id.'" >';
 			$out .= img_pdf($langs->trans('RefLtrPDFDoc')) . $langs->trans('RefLtrPDFDoc').' ('.$documentModel.')';
 			if ($mode == 'view') {
-				$out .= '<a href="' . dol_buildpath('/referenceletters/referenceletters/chapter.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
+				$out .= '<a href="' . dol_buildpath('/referenceletters/chapter.php', 1) . '?id=' . $chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 			}
 		}
 		$out .=  '</div>';
 		return $out;
 	}
+
+	static function _print_docedit_footer($object){
+		global $langs, $conf, $user;
+
+		print '<div class="sortable sortableHelper docedit_document_body docedit_document_bloc"></div>';
+
+		print '<div class="docedit_document_footer docedit_document_bloc">';
+
+
+		// Button and infos
+		print '<div class="docedit_infos docedit_infos_left"><div class="docedit_sticky">';
+		if ($user->rights->referenceletters->write) {
+			print '<a  href="'.dol_buildpath('/referenceletters/footer.php',1).'?id=' . $object->id .'">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
+		}
+		print '</div></div><!-- END docedit_infos -->';
+
+
+		print '<div class="docedit_infos docedit_infos_top">';
+		print '<span class="docedit_title_type" >'. $langs->trans('RefLtrFooterTab').'</span><span class="docedit_title" ></span>';
+		print '</div>';
+
+
+		if($object->use_custom_footer){
+			print $object->footer;
+		}
+		else{
+			// TODO : add default footer
+		}
+
+		print '</div><!-- END docedit_document_footer -->';
+	}
+
+
+	static function _print_docedit_header($object, $norepeat=false){
+		global $langs, $conf, $user;
+
+
+
+		print '<div class="docedit_document_head docedit_document_bloc">';
+
+		// Button and infos
+		print '<div class="docedit_infos docedit_infos_left"><div class="docedit_sticky">';
+		if ($user->rights->referenceletters->write) {
+			print '<a  href="'.dol_buildpath('/referenceletters/header.php',1).'?id=' . $object->id .'">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
+		}
+
+		print '</div></div><!-- END docedit_infos -->';
+
+
+		print '<div class="docedit_infos docedit_infos_top">';
+
+		print '<span class="docedit_title_type" >'. $langs->trans('RefLtrHeaderTab').'</span><span class="docedit_title" ></span>';
+		print '</div>';
+		if(!$norepeat)
+		{
+			if($object->use_custom_header){
+				print $object->header;
+			}
+			else{
+				//var_dump($object->element_type);
+				// Add default header
+				if($object->element_type == 'invoice'){
+					print $conf->global->INVOICE_FREE_TEXT;
+				}
+				elseif($object->element_type == 'propal'){
+					print $conf->global->PROPOSAL_FREE_TEXT;
+				}
+				elseif($object->element_type == 'order'){
+					print $conf->global->ORDER_FREE_TEXT;
+				}
+				elseif($object->element_type == 'contract'){
+					print $conf->global->CONTRACT_FREE_TEXT;
+				}
+				elseif($object->element_type == 'order_supplier'){
+					print $conf->global->SUPPLIER_ORDER_FREE_TEXT;
+				}
+				elseif($object->element_type == 'supplier_proposal'){
+					print $conf->global->SUPPLIER_PROPOSAL_FREE_TEXT;
+				}
+			}
+		}
+
+		print '</div><!-- END docedit_document_head -->';
+	}
+
 }
