@@ -67,7 +67,7 @@ function referencelettersAdminPrepareHead()
 	return $head;
 }
 
-function referenceletterPrepareHead($object) {
+function referencelettersPrepareHead($object) {
 	global $langs, $conf;
 
 	$langs->load("referenceletters@referenceletters");

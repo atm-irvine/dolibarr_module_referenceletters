@@ -47,7 +47,7 @@ $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
 
 // Initialize technical object to manage hooks of thirdparties. Note that conf->hooks_modules contains array array
 $hookmanager->initHooks(array(
-		'referencelettersfooter'
+		'referencelettersheader'
 ));
 
 
@@ -61,18 +61,15 @@ $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action
 if(empty($action)) $action = 'view';
 
 if($action === 'save') {
-	$object->footer = GETPOST('footer', 'none');
-	$object->update($user);
-
-} elseif($action === 'set_custom_footer') {
-	$object->use_custom_footer = GETPOST('use_custom_footer', 'none');
-
-	//TODO Check this !
+	$object->header = GETPOST('header', 'none');
+	$res = $object->update($user);
+} elseif($action === 'set_custom_header') {
+	$object->use_custom_header = GETPOST('use_custom_header','none');
 	echo $object->update($user);
 	exit;
-} elseif($action === 'predeffooter'){
-    $object->use_custom_footer = true;
-    $object->footer = $conf->global->REF_LETTER_PREDEF_FOOTER;
+} elseif($action === 'predefheader'){
+    $object->use_custom_header = true;
+    $object->header = $conf->global->REF_LETTER_PREDEF_HEADER;
     $object->update($user);
 }
 
@@ -80,7 +77,7 @@ if($action === 'save') {
  * View
  */
 
-$title = $langs->trans('Module103258Name').'-'.$langs->trans('RefLtrFooterTab');
+$title = $langs->trans('Module103258Name').'-'.$langs->trans('RefLtrHeaderTab');
 
 $arrayofcss = array('/referenceletters/css/view_documents.css?v='.time());
 llxHeader('',$title, '', '', 0, 0, array(), $arrayofcss);
@@ -91,11 +88,12 @@ $referenceletters_tools = new ReferenceLettersTools($db);
 if(!empty($object->id)) {
 
 	$head = referencelettersPrepareHead($object);
-	dol_fiche_head($head, 'foot', $langs->trans('RefLtrFooterTab'), 0, dol_buildpath('/referenceletters/img/object_referenceletters.png', 1), 1);
+	dol_fiche_head($head, 'head', $langs->trans('RefLtrHeaderTab'), 0, dol_buildpath('/referenceletters/img/object_referenceletters.png', 1), 1);
 
-	print '<form name="saveFooter" method="POST" action="'.$_SERVER['PHP_SELF'].'?id='.GETPOST('id', 'none').'">';
+	print '<form name="saveHeader" method="POST" action="'.$_SERVER['PHP_SELF'].'?id='.GETPOST('id','none').'">';
         $newToken = function_exists('newToken')?newToken():$_SESSION['newtoken'];
 	print '<input type="hidden" name="token" value="' . $newtoken . '">';
+
 	print '<table class="border" width="100%">';
 	print '<tr>';
 	print '<td  width="20%">';
@@ -118,26 +116,26 @@ if(!empty($object->id)) {
 	print $langs->trans('RefLtrTag');
 	print '</td>';
 	print '<td>';
-	print $langs->trans("RefLtrDisplayTag").'<span class="docedit_shortcode classfortooltip" data-target="#footer"><span class="fa fa-code marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('DisplaySubtitutionTable').'" title="'.$langs->trans('DisplaySubtitutionTable').'"></span></span>';
+	print $langs->trans("RefLtrDisplayTag").'<span class="docedit_shortcode classfortooltip" data-target="#header"><span class="fa fa-code marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('DisplaySubtitutionTable').'" title="'.$langs->trans('DisplaySubtitutionTable').'"></span></span>';
 	print $referenceletters_tools::displaySubtitutionKeyAdvanced($user, $object);
 	print '</td>';
 	print '</tr>';
 
-	print '<tr style="background-color:#CEF6CE;">';
-	print '<td>'.$langs->trans('RefLtrUseCustomFooter');
+	print '<tr style="background-color:#CEECF5;">';
+	print '<td>'.$langs->trans('RefLtrUseCustomHeader');
 	print '</td>';
-	print '<td><input type="checkbox" name="use_custom_footer" id="use_custom_footer" value="1" '.(!empty($object->use_custom_footer) ? 'checked="checked"' : '').' />';
-	if (!empty($conf->global->REF_LETTER_PREDEF_HEADER_AND_FOOTER) && !empty($conf->global->REF_LETTER_PREDEF_FOOTER)){
-	    print '&nbsp;&nbsp;<a href="'.$_SERVER['PHP_SELF'].'?id='.GETPOST('id', 'none').'&action=predeffooter" class="button">' . $langs->trans('Fill') . '</a>';
+	print '<td><input type="checkbox" name="use_custom_header" id="use_custom_header" value="1" '.(!empty($object->use_custom_header) ? 'checked="checked"' : '').' />';
+	if (!empty($conf->global->REF_LETTER_PREDEF_HEADER_AND_FOOTER) && !empty($conf->global->REF_LETTER_PREDEF_HEADER)){
+	    print '&nbsp;&nbsp;<a href="'.$_SERVER['PHP_SELF'].'?id='.GETPOST('id', 'none').'&action=predefheader" class="button">' . $langs->trans('Fill') . '</a>';
 	}
 	print '</td>';
 	print '</tr>';
 
-	print '<tr class="wysiwyg" '.(empty($object->use_custom_footer) ? 'style="display:none;background-color:#CEF6CE;"' : 'style="background-color:#CEF6CE;"').'>';
-	print '<td>'.$langs->trans('RefLtrFooterContent');
+	print '<tr class="wysiwyg" '.(empty($object->use_custom_header) ? 'style="display:none;background-color:#CEECF5;"' : 'style="background-color:#CEECF5;"').'>';
+	print '<td>'.$langs->trans('RefLtrHeaderContent');
 	print '</td>';
 	print '<td>';
-	$doleditor=new DolEditor('footer', $object->footer, '', 150, 'dolibarr_notes_encoded', '', false, true, 1, $nbrows, 70);
+	$doleditor=new DolEditor('header', $object->header, '', 150, 'dolibarr_notes_encoded', '', false, true, 1, $nbrows, 70);
 	$doleditor->Create();
 	print '</td>';
 	print '</tr>';
@@ -151,7 +149,7 @@ if(!empty($object->id)) {
 
 	print '</table>';
 
-	print '<div class="wysiwyg" '.(empty($object->use_custom_footer) ? 'style="display:none;"' : '').'>';
+	print '<div class="wysiwyg" '.(empty($object->use_custom_header) ? 'style="display:none;"' : '').'>';
 	print '<input type="hidden" name="action" value="save" />';
 	print '<center>';
 	print '<input type="submit" class="button" value="' . $langs->trans('Save') . '">';
@@ -167,7 +165,7 @@ if(!empty($object->id)) {
 
 <script type="text/javascript">
 
-	$('#use_custom_footer').click(function() {
+	$('#use_custom_header').click(function() {
 
 		var is_checked = $(this).prop('checked');
 		if(is_checked) {
@@ -178,11 +176,11 @@ if(!empty($object->id)) {
 
 		$.ajax({
 
-			url:"<?php echo dol_buildpath('/referenceletters/footer.php',1) ?>"
+			url:"<?php echo dol_buildpath('/referenceletters/header.php',1) ?>"
 					,data:{
 							id:<?php echo (int)$object->id ?>
-							,action:"set_custom_footer"
-							,use_custom_footer:+is_checked
+							,action:"set_custom_header"
+							,use_custom_header:+is_checked
 						}
 
 		});
