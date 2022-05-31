@@ -43,9 +43,9 @@ class ReferenceLettersElements extends CommonObject
 	public $fk_element;
 	public $content_letter;
 	public $import_key;
-	public $fk_user_author;
+	public $fk_user_creat;
 	public $datec = '';
-	public $fk_user_mod;
+	public $fk_user_modif;
 	public $tms = '';
 	public $title;
 	public $outputref;
@@ -113,9 +113,9 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= "fk_element,";
 		$sql .= "content_letter,";
 		$sql .= "import_key,";
-		$sql .= "fk_user_author,";
+		$sql .= "fk_user_creat,";
 		$sql .= "datec,";
-		$sql .= "fk_user_mod,";
+		$sql .= "fk_user_modif,";
 		$sql .= "use_custom_header,";
 		$sql .= "header,";
 		$sql .= "use_custom_footer,";
@@ -201,9 +201,9 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " t.fk_element,";
 		$sql .= " t.content_letter,";
 		$sql .= " t.import_key,";
-		$sql .= " t.fk_user_author,";
+		$sql .= " t.fk_user_creat,";
 		$sql .= " t.datec,";
-		$sql .= " t.fk_user_mod,";
+		$sql .= " t.fk_user_modif,";
 		$sql .= " t.tms,";
 		$sql .= " t.use_custom_header,";
 		$sql .= " t.header,";
@@ -231,9 +231,9 @@ class ReferenceLettersElements extends CommonObject
 				$this->fk_element = $obj->fk_element;
 				$this->content_letter = unserialize($obj->content_letter);
 				$this->import_key = $obj->import_key;
-				$this->fk_user_author = $obj->fk_user_author;
+				$this->fk_user_creat = $obj->fk_user_creat;
 				$this->datec = $this->db->jdate($obj->datec);
-				$this->fk_user_mod = $obj->fk_user_mod;
+				$this->fk_user_modif = $obj->fk_user_modif;
 				$this->tms = $this->db->jdate($obj->tms);
 				$this->title = $obj->title;
 				$this->outputref = $obj->outputref;
@@ -278,9 +278,9 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " t.fk_element,";
 		$sql .= " t.content_letter,";
 		$sql .= " t.import_key,";
-		$sql .= " t.fk_user_author,";
+		$sql .= " t.fk_user_creat,";
 		$sql .= " t.datec,";
-		$sql .= " t.fk_user_mod,";
+		$sql .= " t.fk_user_modif,";
 		$sql .= " t.tms";
 		$sql .= " ,p.title as title_referenceletters";
 		$sql .= " FROM " . MAIN_DB_PREFIX . "referenceletters_elements as t";
@@ -318,9 +318,9 @@ class ReferenceLettersElements extends CommonObject
 					$line->fk_element = $obj->fk_element;
 					$line->content_letter = unserialize($obj->content_letter);
 					$line->import_key = $obj->import_key;
-					$line->fk_user_author = $obj->fk_user_author;
+					$line->fk_user_creat = $obj->fk_user_creat;
 					$line->datec = $this->db->jdate($obj->datec);
-					$line->fk_user_mod = $obj->fk_user_mod;
+					$line->fk_user_modif = $obj->fk_user_modif;
 					$line->tms = $this->db->jdate($obj->tms);
 					$line->title = $obj->title;
 					$line->title_referenceletters = $obj->title_referenceletters;
@@ -361,9 +361,9 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " t.fk_element,";
 		$sql .= " t.content_letter,";
 		$sql .= " t.import_key,";
-		$sql .= " t.fk_user_author,";
+		$sql .= " t.fk_user_creat,";
 		$sql .= " t.datec,";
-		$sql .= " t.fk_user_mod,";
+		$sql .= " t.fk_user_modif,";
 		$sql .= " t.tms";
 		$sql .= " ,p.title as title_referenceletters";
 		$sql .= " FROM " . MAIN_DB_PREFIX . "referenceletters_elements as t";
@@ -471,9 +471,9 @@ class ReferenceLettersElements extends CommonObject
 						//Comment because out of memory
 						// $line->content_letter = unserialize($obj->content_letter);
 						$line->import_key = $obj->import_key;
-						$line->fk_user_author = $obj->fk_user_author;
+						$line->fk_user_creat = $obj->fk_user_creat;
 						$line->datec = $this->db->jdate($obj->datec);
-						$line->fk_user_mod = $obj->fk_user_mod;
+						$line->fk_user_modif = $obj->fk_user_modif;
 						$line->tms = $this->db->jdate($obj->tms);
 						$line->title = $obj->title;
 						$line->title_referenceletters = $obj->title_referenceletters;
@@ -549,7 +549,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " fk_element=" . (isset($this->fk_element) ? $this->fk_element : "null") . ",";
 		$sql .= " content_letter=" . (! empty($content_letter) ? "'" . $this->db->escape($content_letter) . "'" : "null") . ",";
 		$sql .= " import_key=" . (isset($this->import_key) ? "'" . $this->db->escape($this->import_key) . "'" : "null") . ",";
-		$sql .= " fk_user_mod=" . $user->id . ",";
+		$sql .= " fk_user_modif=" . $user->id . ",";
 		$sql .= " use_custom_header=" . ( int ) $this->use_custom_header . ",";
 		$sql .= " use_custom_footer=" . ( int ) $this->use_custom_footer . ",";
 		$sql .= " header=" . (isset($this->header) ? "'" . $this->header . "'" : "null") . ",";
@@ -722,9 +722,9 @@ class ReferenceLettersElements extends CommonObject
 		$this->fk_element = '';
 		$this->content_letter = '';
 		$this->import_key = '';
-		$this->fk_user_author = '';
+		$this->fk_user_creat = '';
 		$this->datec = '';
-		$this->fk_user_mod = '';
+		$this->fk_user_modif = '';
 		$this->tms = '';
 	}
 
@@ -814,9 +814,9 @@ class ReferenceLettersElementsLine
 	public $fk_element;
 	public $content_letter;
 	public $import_key;
-	public $fk_user_author;
+	public $fk_user_creat;
 	public $datec = '';
-	public $fk_user_mod;
+	public $fk_user_modif;
 	public $tms = '';
 	public $title;
 	public $outputref;

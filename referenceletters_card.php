@@ -82,6 +82,7 @@ dol_include_once('/referenceletters/class/referenceletters.class.php');
 dol_include_once('/referenceletters/class/referenceletterschapters.class.php');
 dol_include_once('/referenceletters/class/referenceletters_tools.class.php');
 dol_include_once('/referenceletters/lib/referenceletters.lib.php');
+dol_include_once('/referenceletters/lib/referenceletters_referenceletters.lib.php');
 
 
 // Load translation files required by the page

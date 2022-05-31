@@ -114,8 +114,8 @@ class ReferenceLetters extends CommonObject
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>110, 'notnull'=>0, 'visible'=>0,),
 		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>120, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1', 'css'=>'left',),
 		'import_key' => array('type'=>'varchar(100)', 'label'=>'ImportKey', 'enabled'=>'1', 'position'=>130, 'notnull'=>0, 'visible'=>0,),
-		'fk_user_author' => array('type'=>'integer', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1',),
-		'fk_user_mod' => array('type'=>'integer', 'label'=>'UserMod', 'enabled'=>'1', 'position'=>150, 'notnull'=>1, 'visible'=>0,),
+		'fk_user_creat' => array('type'=>'integer', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>0, 'noteditable'=>'1',),
+		'fk_user_modif' => array('type'=>'integer', 'label'=>'UserMod', 'enabled'=>'1', 'position'=>150, 'notnull'=>1, 'visible'=>0,),
 	);
 	public $rowid;
 	public $ref;
@@ -131,8 +131,8 @@ class ReferenceLetters extends CommonObject
 	public $tms;
 	public $date_creation;
 	public $import_key;
-	public $fk_user_author;
-	public $fk_user_mod;
+	public $fk_user_creat;
+	public $fk_user_modif;
 	// END MODULEBUILDER PROPERTIES
 
 
@@ -1052,11 +1052,18 @@ class ReferenceLetters extends CommonObject
 			if ($this->db->num_rows($result)) {
 				$obj = $this->db->fetch_object($result);
 				$this->id = $obj->rowid;
-				if (!empty($obj->fk_user_author)) {
+				if (!empty($obj->fk_user_creat)) {
 					$cuser = new User($this->db);
-					$cuser->fetch($obj->fk_user_author);
+					$cuser->fetch($obj->fk_user_creat);
 					$this->user_creation = $cuser;
 				}
+
+				if (!empty($obj->fk_user_modif)) {
+					$muser = new User($this->db);
+					$muser->fetch($obj->fk_user_modif);
+					$this->user_modification = $cuser;
+				}
+
 
 				if (!empty($obj->fk_user_valid)) {
 					$vuser = new User($this->db);

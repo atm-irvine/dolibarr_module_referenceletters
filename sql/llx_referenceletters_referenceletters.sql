@@ -30,7 +30,7 @@ CREATE TABLE llx_referenceletters_referenceletters(
 	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
 	date_creation datetime, 
 	import_key varchar(100), 
-	fk_user_author integer, 
-	fk_user_mod integer NOT NULL
+	fk_user_creat integer,
+	fk_user_modif integer NOT NULL
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;

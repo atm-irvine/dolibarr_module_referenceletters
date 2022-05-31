@@ -432,7 +432,7 @@ class modReferenceletters extends DolibarrModules
 		$this->import_label[$r]='ReferenceLettersLines';	// Translation key (used only if key ExportDataset_xxx_z not found)
 		$this->import_icon[$r]='referenceletters@referenceletters';
 		$this->import_tables_array[$r] = array('t' => MAIN_DB_PREFIX.'referenceletters_referenceletters', 'extra' => MAIN_DB_PREFIX.'referenceletters_referenceletters_extrafields');
-		$this->import_tables_creator_array[$r] = array('t' => 'fk_user_author'); // Fields to store import user id
+		$this->import_tables_creator_array[$r] = array('t' => 'fk_user_creat'); // Fields to store import user id
 		$import_sample = array();
 		$keyforclass = 'ReferenceLetters'; $keyforclassfile='/referenceletters/class/referenceletters.class.php'; $keyforelement='referenceletters@referenceletters';
 		include DOL_DOCUMENT_ROOT.'/core/commonfieldsinimport.inc.php';

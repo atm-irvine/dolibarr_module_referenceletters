@@ -28,7 +28,7 @@ CREATE TABLE llx_referenceletters_referenceletterschapters(
 	import_key varchar(14), 
 	fk_user_creat integer NOT NULL, 
 	date_creation datetime NOT NULL, 
-	fk_user_modif integer, 
+	fk_user_modif integer,
 	tms timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;

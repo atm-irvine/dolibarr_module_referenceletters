@@ -357,9 +357,9 @@ class ReferenceLettersChapters extends CommonObject
 		$sql.= " t.readonly,";
 		$sql.= " t.same_page,";
 		$sql.= " t.import_key,";
-		$sql.= " t.fk_user_author,";
+		$sql.= " t.fk_user_creat,";
 		$sql.= " t.datec,";
-		$sql.= " t.fk_user_mod,";
+		$sql.= " t.fk_user_modif,";
 		$sql.= " t.tms";
 		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_chapters as t";
 		$sql.= " WHERE t.fk_referenceletters = ".$this->db->escape($id);
@@ -392,9 +392,9 @@ class ReferenceLettersChapters extends CommonObject
 					$chapter->readonly = $obj->readonly;
 					$chapter->same_page = $obj->same_page;
 					$chapter->import_key = $obj->import_key;
-					$chapter->fk_user_author = $obj->fk_user_author;
+					$chapter->fk_user_creat = $obj->fk_user_creat;
 					$chapter->datec = $this->db->jdate($obj->datec);
-					$chapter->fk_user_mod = $obj->fk_user_mod;
+					$chapter->fk_user_modif = $obj->fk_user_modif;
 					$chapter->tms = $this->db->jdate($obj->tms);
 
 					$this->lines_chapters[]=$chapter;
