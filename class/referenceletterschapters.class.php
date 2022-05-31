@@ -102,7 +102,7 @@ class ReferenceLettersChapters extends CommonObject
 		'sort_order' => array('type'=>'integer', 'label'=>'SortOrder', 'enabled'=>'1', 'position'=>40, 'notnull'=>1, 'visible'=>1, 'default'=>'1',),
 		'title' => array('type'=>'varchar(100)', 'label'=>'Title', 'enabled'=>'1', 'position'=>50, 'notnull'=>1, 'visible'=>1,),
 		'content_text' => array('type'=>'html', 'label'=>'ContentText', 'enabled'=>'1', 'position'=>60, 'notnull'=>1, 'visible'=>1,),
-		'options_text' => array('type'=>'text', 'label'=>'OptionText', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>1,),
+		'options_text' => array('type'=>'texte', 'label'=>'OptionText', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>1,),
 		'readonly' => array('type'=>'boolean', 'label'=>'ReadOnly', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>1, 'help'=>"ReadOnlyHelp",),
 		'same_page' => array('type'=>'boolean', 'label'=>'SamePage', 'enabled'=>'1', 'position'=>90, 'notnull'=>0, 'visible'=>1,),
 		'import_key' => array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>'1', 'position'=>100, 'notnull'=>-1, 'visible'=>-2,),
@@ -216,6 +216,19 @@ class ReferenceLettersChapters extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
+
+		// Check parameters
+		// Put here code to add a control on parameters values
+		if (is_array($this->options_text) && count($this->options_text)>0) {
+			//Remove empty values
+			foreach($this->options_text as $key=>$option) {
+				if (empty($option)) unset($this->options_text[$key]);
+			}
+			$this->options_text=serialize($this->options_text);
+		} else {
+			$this->options_text=trim($this->options_text);
+		}
+
 		$resultcreate = $this->createCommon($user, $notrigger);
 
 		//$resultvalidate = $this->validate($user, $notrigger);
@@ -478,6 +491,7 @@ class ReferenceLettersChapters extends CommonObject
 
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
+				$record->options_text= unserialize($obj->options_text);
 
 				$records[$record->id] = $record;
 
@@ -503,6 +517,23 @@ class ReferenceLettersChapters extends CommonObject
 	 */
 	public function update(User $user, $notrigger = false)
 	{
+//
+//		var_dump($this->options_text);
+//		var_dump(is_array($this->options_text)); exit;
+		// Check parameters
+		// Put here code to add a control on parameters values
+		if (is_array($this->options_text) && count($this->options_text)>0) {
+			//Remove empty values
+			foreach($this->options_text as $key=>$option) {
+				if (empty($option)) unset($this->options_text[$key]);
+			}
+			$this->options_text=serialize($this->options_text);
+		} else {
+			$this->options_text=trim($this->options_text);
+		}
+
+		$this->options_text=serialize($this->options_text);
+
 		return $this->updateCommon($user, $notrigger);
 	}
 

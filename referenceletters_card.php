@@ -507,7 +507,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '<span class="docedit_infos_icon docedit_setbool classfortooltip" data-field="same_page" data-id="'.$line_chapter->id.'" data-valtoset="'.(!$line_chapter->same_page).'"  ><span class="fa '.(empty($line_chapter->same_page)?'fa-toggle-off':'fa-toggle-on').' marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('RefLtrUnsecable').'" title="'.$langs->trans('RefLtrUnsecable').'"></span></span>';
 					}
 
-					print '<a  href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1).'?id=' . $line_chapter->id . '&action=edit">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
+					print '<a  href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1).'?id=' . $line_chapter->id . '&action=edit&fk_referenceletters='.$object->id.'">' . img_picto($langs->trans('Edit'), 'edit') . '</a>';
 					print '<a class="docedit_infos_icon classfortooltip" href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1).'?id=' . $line_chapter->id . '&action=delete'.$urlToken.'">' . img_picto($langs->trans('Delete'), 'delete') . '</a>';
 
 				}
@@ -536,6 +536,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print $line_chapter->content_text;
 				print '</div><!-- END docedit_document_body_text -->';
 
+//				var_dump($line_chapter->options_text);
 				if (is_array($line_chapter->options_text) && count($line_chapter->options_text)>0) {
 
 					print '<div class="docedit_document_option">';

@@ -193,7 +193,15 @@ if (empty($reshook)) {
 		} else {
 			setEventMessage('Page call wtih wrong argument', 'errors');
 		}
+
+		$options = GETPOST('option_text', 'none');
+		if (!empty($options)) {
+			$option_array = explode("\r\n",$options);
+			$object->options_text=$option_array;
+		}
+
 	}
+
 	if($action=='edit'){
 		if(!empty($id)) {
 			$result=$object->fetch($id);
@@ -206,12 +214,24 @@ if (empty($reshook)) {
 			}
 		}
 
+
+
 	}
+
 
 	if($action == 'add') {
 		if (!empty($idletter)) {
 			$object->fk_referenceletters = $idletter;
 			//TODO : gérer l'erreur "Column 'fk_referenceletters' cannot be null"
+		}
+	}
+
+	if($action == 'update'){
+		$options = GETPOST('options_text', 'none');
+
+		if (!empty($options)) {
+			$option_array = explode("\r\n",$options);
+			$object->options_text=$option_array;
 		}
 	}
 
