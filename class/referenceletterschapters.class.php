@@ -63,12 +63,6 @@ class ReferenceLettersChapters extends CommonObject
 	 */
 	public $picto = 'referenceletterschapters@referenceletters';
 
-
-	const STATUS_DRAFT = 0;
-	const STATUS_VALIDATED = 1;
-	const STATUS_CANCELED = 9;
-
-
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter[:Sortfield]]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
 	 *         Note: Filter can be a string like "(t.ref:like:'SO-%') or (t.date_creation:<:'20160101') or (t.nature:is:NULL)"
@@ -104,17 +98,17 @@ class ReferenceLettersChapters extends CommonObject
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
 		'fk_referenceletters' => array('type'=>'integer:ReferenceLetters:custom/referenceletters/class/referenceletters.class.php', 'label'=>'ReferenceLetters', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>0,),
-		'lang' => array('type'=>'varchar(5)', 'label'=>'Lang', 'enabled'=>'1', 'position'=>30, 'notnull'=>0, 'visible'=>0,),
+		'lang' => array('type'=>'varchar(5)', 'label'=>'Lang', 'enabled'=>'1', 'position'=>30, 'notnull'=>1, 'visible'=>0,),
 		'sort_order' => array('type'=>'integer', 'label'=>'SortOrder', 'enabled'=>'1', 'position'=>40, 'notnull'=>1, 'visible'=>1, 'default'=>'1',),
 		'title' => array('type'=>'varchar(100)', 'label'=>'Title', 'enabled'=>'1', 'position'=>50, 'notnull'=>1, 'visible'=>1,),
 		'content_text' => array('type'=>'html', 'label'=>'ContentText', 'enabled'=>'1', 'position'=>60, 'notnull'=>1, 'visible'=>1,),
-		'options_text' => array('type'=>'text', 'label'=>'OptionText', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>1),
-		'readonly' => array('type'=>'boolean', 'label'=>'ReadOnly', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>1,'help'=>'ReadOnlyHelp'),
+		'options_text' => array('type'=>'text', 'label'=>'OptionText', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>1,),
+		'readonly' => array('type'=>'boolean', 'label'=>'ReadOnly', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>1, 'help'=>"ReadOnlyHelp",),
 		'same_page' => array('type'=>'boolean', 'label'=>'SamePage', 'enabled'=>'1', 'position'=>90, 'notnull'=>0, 'visible'=>1,),
 		'import_key' => array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>'1', 'position'=>100, 'notnull'=>-1, 'visible'=>-2,),
-		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'picto'=>'user', 'enabled'=>'1', 'position'=>110, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
+		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>110, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
 		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>120, 'notnull'=>1, 'visible'=>-2,),
-		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'picto'=>'user', 'enabled'=>'1', 'position'=>130, 'notnull'=>-1, 'visible'=>-2,),
+		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>130, 'notnull'=>-1, 'visible'=>-2,),
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>140, 'notnull'=>0, 'visible'=>-2,),
 	);
 	public $rowid;
@@ -268,9 +262,6 @@ class ReferenceLettersChapters extends CommonObject
 		}
 		if (property_exists($object, 'label')) {
 			$object->label = empty($this->fields['label']['default']) ? $langs->trans("CopyOf")." ".$object->label : $this->fields['label']['default'];
-		}
-		if (property_exists($object, 'status')) {
-			$object->status = self::STATUS_DRAFT;
 		}
 		if (property_exists($object, 'date_creation')) {
 			$object->date_creation = dol_now();
@@ -549,9 +540,6 @@ class ReferenceLettersChapters extends CommonObject
 		$result = '';
 
 		$label = img_picto('', $this->picto).' <u>'.$langs->trans("ReferenceLettersChapters").'</u>';
-		if (isset($this->status)) {
-			$label .= ' '.$this->getLibStatut(5);
-		}
 		$label .= '<br>';
 		$label .= '<b>'.$langs->trans('Ref').':</b> '.$this->ref;
 

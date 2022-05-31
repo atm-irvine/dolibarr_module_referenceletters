@@ -440,7 +440,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '<a class="butAction" href="' . dol_buildpath('/referenceletters/referenceletters/card.php', 1) . '?action=adddocpdf&id=' . $object->id . '">' . $langs->trans("RefLtrAddPDFDoc") . '</a>';
 				}
 				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletters/card.php',1).'?action=addbreakpagewithoutheader&id='.$object->id.'">' . $langs->trans("RefLtrAddPageBreakWithoutHeader") . '</a>';
-				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php',1).'?action=create&idletter='.$object->id.'">' . $langs->trans("RefLtrNewChaters") . '</a>';
+				print '<a class="butAction" href="'.dol_buildpath('/referenceletters/referenceletterschapters_card.php',1).'?action=create&fk_referenceletters='.$object->id.'">' . $langs->trans("RefLtrNewChaters") . '</a>';
 				print "</div><br>";
 				//print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit">' . $langs->trans("Edit") . "</a></div>\n";
 				print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=clone">' . $langs->trans("Clone") . "</a></div>\n";

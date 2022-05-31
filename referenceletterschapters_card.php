@@ -90,7 +90,7 @@ $langs->loadLangs(array("referenceletters@referenceletters", "other"));
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref', 'alpha');
 $lineid   = GETPOST('lineid', 'int');
-$idletter = GETPOST('idletter', 'int');
+$idletter = GETPOST('fk_referenceletters', 'int');
 
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
@@ -176,7 +176,7 @@ if (empty($reshook)) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
 				$backtopage = $backurlforlist;
 			} else {
-				$backtopage = dol_buildpath('/referenceletters/referenceletterschapters_card.php', 1).'?id='.((!empty($id) && $id > 0) ? $id : '__ID__');
+				$backtopage = dol_buildpath('/referenceletters/referenceletters_card.php', 1).'?id='.((!empty($idletter) && $idletter > 0) ? $idletter : '__ID__');
 			}
 		}
 	}
@@ -290,6 +290,8 @@ if ($action == 'create') {
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
+	print '<input type="hidden" name="fk_referenceletters" value="'.$idletter.'">';
+	print '<input type="hidden" name="lang" value="'.$langs->defaultlang.'">';
 	if ($backtopage) {
 		print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	}
@@ -472,7 +474,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref .= '</div>';
 
 
-	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+//	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 
 	print '<div class="fichecenter">';
