@@ -493,12 +493,13 @@ class ReferenceLettersTools {
 
 		$refletter = new Referenceletters($db);
 		$filter=array('t.element_type'=>$element_type, 't.status'=>1);
-		$refletter->fetch_all('ASC','t.title',0,0,$filter);
+		$TReferenceLetters = $refletter->fetchAll('ASC','t.title',0,0, array('customsql'=>"t.element_type='".$element_type."' AND t.status=1"));
 		$select_elemnt = '<select class="flat" name="' . $htmlname . '">';
 		if (!empty($showempty)) {
 			$select_elemnt .= '<option value=""></option>';
 		}
-		foreach($refletter->lines as $key=>$line) {
+
+		foreach($TReferenceLetters as $line) {
 
 			if ($selected==$line->id) {
 				$option_selected=' selected="selected" ';

@@ -172,7 +172,17 @@ class modReferenceletters extends DolibarrModules
 		}
 
 		// Array to add new pages in new tabs
-		$this->tabs = array();
+		$this->tabs = array (
+			'contract:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=contract',
+			'thirdparty:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=thirdparty',
+			'contact:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=contact',
+			'propal:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=propal',
+			'invoice:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=invoice',
+			'order:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=order',
+			'supplier_proposal:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=supplier_proposal',
+			'supplier_order:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=order_supplier',
+			//'delivery:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/referenceletters/instance.php?id=__ID__&element_type=expedition'
+		);
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@referenceletters:$user->rights->referenceletters->read:/referenceletters/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1
 		// $this->tabs[] = array('data'=>'objecttype:+tabname2:SUBSTITUTION_Title2:mylangfile@referenceletters:$user->rights->othermodule->read:/referenceletters/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2. Label will be result of calling all substitution functions on 'Title2' key.
@@ -281,6 +291,12 @@ class modReferenceletters extends DolibarrModules
 // 		$this->rights[$r][4] = 'referenceletters';
 		$this->rights[$r][4] = 'delete'; // In php code, permission will be checked by test if ($user->rights->referenceletters->referenceletters->delete)
 		$r++;
+
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = 'Use objects of Referenceletters'; // Permission label
+// 		$this->rights[$r][4] = 'referenceletters';
+		$this->rights[$r][4] = 'use'; // In php code, permission will be checked by test if ($user->rights->referenceletters->referenceletters->delete)
+		$r++;
 		/* END MODULEBUILDER PERMISSIONS */
 
 		// Main menu entries to add
@@ -303,6 +319,8 @@ class modReferenceletters extends DolibarrModules
 			'target'=>'',
 			'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
 		);
+
+
 		/* END MODULEBUILDER TOPMENU */
 		/* BEGIN MODULEBUILDER LEFTMENU REFERENCELETTERS
 		$this->menu[$r++]=array(
@@ -377,8 +395,29 @@ class modReferenceletters extends DolibarrModules
             'type'=>'left',
             'titre'=>'New ReferenceLetters',
             'mainmenu'=>'referenceletters',
-            'leftmenu'=>'referenceletters_referenceletters',
             'url'=>'/referenceletters/referenceletters_card.php?action=create',
+            // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+            'langs'=>'referenceletters@referenceletters',
+            'position'=>1100+$r,
+            // Define condition to show or hide menu entry. Use '$conf->referenceletters->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+            'enabled'=>'$conf->referenceletters->enabled',
+            // Use 'perms'=>'$user->rights->referenceletters->level1->level2' if you want your menu with a permission rules
+            'perms'=>'1',
+            'target'=>'',
+            // 0=Menu for internal users, 1=external users, 2=both
+            'user'=>2
+        );
+
+
+		$this->menu[$r++]=array(
+            // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+            'fk_menu'=>'fk_mainmenu=referenceletters,fk_leftmenu=referenceletters_referenceletters',
+            // This is a Left menu entry
+            'type'=>'left',
+            'titre'=>'RefLtrListInstance',
+            'mainmenu'=>'referenceletters',
+            'leftmenu'=>'referenceletters_referenceletters',
+            'url'=>'/referenceletters/list_instance.php',
             // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'langs'=>'referenceletters@referenceletters',
             'position'=>1100+$r,
