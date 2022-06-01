@@ -182,6 +182,38 @@ if (empty($reshook)) {
 
 	$backurlforlist = dol_buildpath('/referenceletters/referenceletters_list.php', 1);
 
+	if($action=='addbreakpage' ) {
+		$object_chapters_breakpage = new ReferenceLettersChapters($db);
+		$object_chapters_breakpage->fk_referenceletters=$object->id;
+		$object_chapters_breakpage->title ='';
+		$object_chapters_breakpage->content_text = '@breakpage@';
+		$object_chapters_breakpage->sort_order=$object_chapters_breakpage->findMaxSortOrder();
+		$object_chapters_breakpage->lang=$object_chapters_breakpage->findPreviewsLanguage();
+		$result = $object_chapters_breakpage->create($user);
+		if ($result < 0) {
+			$action = 'addbreakpage';
+			setEventMessage($object_chapters_breakpage->error, 'errors');
+		} else {
+			header('Location:' . $_SERVER["PHP_SELF"] . '?id=' . $object->id);
+		}
+	}
+
+	if ($action=='addbreakpagewithoutheader') {
+		$object_chapters_breakpage = new ReferenceLettersChapters($db);
+		$object_chapters_breakpage->fk_referenceletters=$object->id;
+		$object_chapters_breakpage->title ='';
+		$object_chapters_breakpage->content_text = '@breakpagenohead@';
+		$object_chapters_breakpage->sort_order=$object_chapters_breakpage->findMaxSortOrder();
+		$object_chapters_breakpage->lang=$object_chapters_breakpage->findPreviewsLanguage();
+		$result = $object_chapters_breakpage->create($user);
+		if ($result < 0) {
+			$action = 'addbreakpagewithoutheader';
+			setEventMessage($object_chapters_breakpage->error, 'errors');
+		} else {
+			header('Location:' . $_SERVER["PHP_SELF"] . '?id=' . $object->id);
+		}
+	}
+
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
