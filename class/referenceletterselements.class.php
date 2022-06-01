@@ -213,7 +213,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " ,p.title as title_referenceletters";
 
 		$sql .= " FROM " . MAIN_DB_PREFIX . "referenceletters_elements as t";
-		$sql .= " INNER JOIN " . MAIN_DB_PREFIX . "referenceletters as p ON p.rowid=t.fk_referenceletters";
+		$sql .= " INNER JOIN " . MAIN_DB_PREFIX . "referenceletters_referenceletters as p ON p.rowid=t.fk_referenceletters";
 		$sql .= " WHERE t.rowid = " . $id;
 
 		dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
@@ -284,7 +284,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " t.tms";
 		$sql .= " ,p.title as title_referenceletters";
 		$sql .= " FROM " . MAIN_DB_PREFIX . "referenceletters_elements as t";
-		$sql .= " INNER JOIN " . MAIN_DB_PREFIX . "referenceletters as p ON p.rowid=t.fk_referenceletters";
+		$sql .= " INNER JOIN " . MAIN_DB_PREFIX . "referenceletters_referenceletters as p ON p.rowid=t.fk_referenceletters";
 		$sql .= " WHERE t.entity IN (".getEntity("referenceletters", 1).")";
 		$sql .= " AND t.fk_element = " . $element_id;
 		$sql .= " AND t.element_type = '" . $this->db->escape($element_type) . "'";

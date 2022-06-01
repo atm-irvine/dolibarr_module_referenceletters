@@ -360,7 +360,6 @@ class ReferenceLettersChapters extends CommonObject
 		global $langs;
 		$sql = "SELECT";
 		$sql.= " t.rowid,";
-		$sql.= " t.entity,";
 		$sql.= " t.fk_referenceletters,";
 		$sql.= " t.lang,";
 		$sql.= " t.sort_order,";
@@ -374,7 +373,7 @@ class ReferenceLettersChapters extends CommonObject
 		$sql.= " t.datec,";
 		$sql.= " t.fk_user_modif,";
 		$sql.= " t.tms";
-		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_chapters as t";
+		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_referenceletterschapters as t";
 		$sql.= " WHERE t.fk_referenceletters = ".$this->db->escape($id);
 		if (!empty($lang_chapter)) {
 			$sql.=" AND t.lang='".$this->db->escape($lang_chapter)."'";
@@ -683,7 +682,7 @@ class ReferenceLettersChapters extends CommonObject
 		global $langs;
 		$sql = "SELECT";
 		$sql.= " MAX(t.sort_order) as maxsortorder";
-		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_chapters as t";
+		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_referenceletterschapters as t";
 		$sql.= " WHERE t.fk_referenceletters = ".$this->fk_referenceletters;
 
 		dol_syslog(get_class($this)."::".__METHOD__, LOG_DEBUG);
@@ -721,7 +720,7 @@ class ReferenceLettersChapters extends CommonObject
 		global $langs;
 		$sql = "SELECT";
 		$sql.= " t.lang";
-		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_chapters as t";
+		$sql.= " FROM ".MAIN_DB_PREFIX."referenceletters_referenceletterschapters as t";
 		$sql.= " WHERE t.fk_referenceletters = ".$this->fk_referenceletters;
 		$sql.= " AND t.sort_order <".$this->sort_order;
 		$sql.= " LIMIT 1";

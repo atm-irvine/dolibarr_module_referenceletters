@@ -40,6 +40,7 @@ require_once 'class/referenceletters.class.php';
 require_once 'class/referenceletterschapters.class.php';
 require_once 'class/referenceletters_tools.class.php';
 require_once 'class/referenceletterselements.class.php';
+require_once 'core/modules/referenceletters/modules_referenceletters.php';
 require_once 'lib/referenceletters.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formadmin.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
@@ -130,9 +131,9 @@ if ($action == 'buildoc') {
 		$object_element->fk_referenceletters = $idletter;
 		$object_element->outputref = GETPOST('outputref', 'int');
 		$object_element->use_custom_header = GETPOST('use_custom_header', 'none');
-		$object_element->header = RfltrTools::setImgLinkToUrl(GETPOST('header', 'none'));
+		$object_element->header = ReferenceLettersTools::setImgLinkToUrl(GETPOST('header', 'none'));
 		$object_element->use_custom_footer = GETPOST('use_custom_footer', 'none');
-		$object_element->footer = RfltrTools::setImgLinkToUrl(GETPOST('footer', 'none'));
+		$object_element->footer = ReferenceLettersTools::setImgLinkToUrl(GETPOST('footer', 'none'));
 		$object_element->use_landscape_format = GETPOST('use_landscape_format', 'none');
 
 		if (empty($langs_chapter) && ! empty($conf->global->MAIN_MULTILANGS)) {
@@ -142,7 +143,7 @@ if ($action == 'buildoc') {
 			$langs_chapter = $langs->defaultlang;
 		}
 
-		$result = $object_chapters->fetch_byrefltr($idletter, $langs_chapter);
+		$result = $object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' =>$idletter,'customsql'=>'lang="'.$langs_chapter.'"'));
 		if ($result < 0) {
 			if($justinformme) echo $object_element->error;
 			else setEventMessage($object_chapters->error, 'errors');
@@ -163,7 +164,7 @@ if ($action == 'buildoc') {
 				}
 
 				$content_letter[$line_chapter->id] = array (
-						'content_text' => RfltrTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id, 'none')),
+						'content_text' => ReferenceLettersTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id, 'none')),
 						'options' => $options
 				);
 			}
@@ -206,7 +207,7 @@ if ($action == 'buildoc') {
 		if (empty($langs_chapter))
 			$langs_chapter = $langs->defaultlang;
 
-		$result = $object_chapters->fetch_byrefltr($idletter, $langs_chapter);
+		$result = $object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' =>$idletter,'customsql'=>'lang="'.$langs_chapter.'"'));
 		if ($result < 0)
 			setEventMessage($object_chapters->error, 'errors');
 
@@ -270,6 +271,7 @@ if ($action == 'buildoc') {
 	}
 } elseif ($action == 'confirm_delete' && $confirm == 'yes' && $user->rights->referenceletters->delete) {
 	$result = $object_element->fetch($refletterelemntid);
+
 	if ($result < 0) {
 		setEventMessage($object_element->error, 'errors');
 	} else {
@@ -277,7 +279,7 @@ if ($action == 'buildoc') {
 		if ($result < 0) {
 			setEventMessage($object_element->errors, 'errors');
 		} else {
-			header('Location:' . dol_buildpath('/referenceletters/referenceletters/instance.php', 1) . '?id=' . $object->id . '&element_type=' . $element_type);
+			header('Location:' . dol_buildpath('/referenceletters/instance.php', 1) . '?id=' . $object->id . '&element_type=' . $element_type);
 		}
 	}
 }
@@ -408,9 +410,10 @@ if (! empty($idletter)) {
 		if (empty($langs_chapter))
 			$langs_chapter = $langs->defaultlang;
 
-		$result = $object_chapters->fetch_byrefltr($idletter, $langs_chapter);
-		if ($result < 0)
+		$TChapters=$object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' =>$idletter));
+		if ($TChapters < 0)
 			setEventMessage($object_chapters->error, 'errors');
+
 
 		print_fiche_titre($langs->trans("RefLtrChapters"), '', dol_buildpath('/referenceletters/img/object_referenceletters.png', 1), 1);
 
@@ -420,7 +423,7 @@ if (! empty($idletter)) {
 		print '<input type="hidden" name="idletter" value="' . $idletter . '">';
 
 		print '<table class="border" width="100%">';
-		if (is_array($object_chapters->lines_chapters) && count($object_chapters->lines_chapters) > 0) {
+		if (is_array($TChapters) && count($TChapters) > 0) {
 
 			print '<tr>';
 			print '<td  width="20%">';
@@ -477,7 +480,8 @@ if (! empty($idletter)) {
 			print '</td>';
 			print '</tr>';
 
-			foreach ( $object_chapters->lines_chapters as $key => $line_chapter ) {
+
+			foreach ($TChapters as $key => $line_chapter ) {
 				if ($line_chapter->content_text == '@breakpage@') {
 					print '<tr><td colspan="2" style="text-align:center;font-weight:bold">';
 					print '<input type="hidden" name="content_text_' . $line_chapter->id . '" value="' . $line_chapter->content_text . '"/>';
@@ -552,6 +556,8 @@ if (! empty($idletter)) {
 			print '<input type="submit" value="' . $langs->trans('RefLtrCreateDoc') . '" class="button" name="createdoc">';
 			print '</td>';
 		}
+
+
 		print '</table>';
 
 		print '</form>';
