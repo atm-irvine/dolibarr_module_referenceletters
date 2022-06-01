@@ -100,6 +100,9 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $dol_openinpopup = GETPOST('dol_openinpopup', 'aZ09');
 
+$refltrdefault_doc=GETPOST('refltrdefault_doc', 'alpha');
+$refltrdoc_template=GETPOST('refltrdoc_template', 'alpha');
+
 // Initialize technical objects
 $object = new ReferenceLetters($db);
 $object_chapters = new ReferenceLettersChapters($db);
@@ -209,6 +212,36 @@ if (empty($reshook)) {
 		if ($result < 0) {
 			$action = 'addbreakpagewithoutheader';
 			setEventMessage($object_chapters_breakpage->error, 'errors');
+		} else {
+			header('Location:' . $_SERVER["PHP_SELF"] . '?id=' . $object->id);
+		}
+	}
+
+	if($action=='adddocpdf' && !empty($refltrdoc_template)) {
+		$modellist=array();
+		if (array_key_exists('listmodelfile', $object->element_type_list[$object->element_type])) {
+			if (file_exists($object->element_type_list[$object->element_type]['listmodelfile'])) {
+				include_once $object->element_type_list[$object->element_type]['listmodelfile'];
+				$modellist = call_user_func($object->element_type_list[$object->element_type]['listmodelclass'].'::liste_modeles', $db);
+			}
+		}
+		if (empty($modellist)) {
+			$action='adddocpdf_confirm';
+		}
+	}
+
+	if ($action=='adddocpdf_confirm' && !empty($refltrdoc_template)) {
+
+		$object_chapters_pdfdoc = new ReferenceLettersChapters($db);
+		$object_chapters_pdfdoc->fk_referenceletters=$object->id;
+		$object_chapters_pdfdoc->title ='';
+		$object_chapters_pdfdoc->content_text = '@pdfdoc_'.$refltrdoc_template.'@';
+		$object_chapters_pdfdoc->sort_order=$object_chapters_pdfdoc->findMaxSortOrder();
+		$object_chapters_pdfdoc->lang=$object_chapters_pdfdoc->findPreviewsLanguage();
+		$result = $object_chapters_pdfdoc->create($user);
+		if ($result < 0) {
+			$action = 'adddocpdf';
+			setEventMessage($object_chapters_pdfdoc->error, 'errors');
 		} else {
 			header('Location:' . $_SERVER["PHP_SELF"] . '?id=' . $object->id);
 		}
@@ -363,6 +396,26 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Create an array for form
 		$formquestion = array();
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
+	}
+
+	if ($action=='adddocpdf') {
+		if (array_key_exists('listmodelfile', $object->element_type_list[$object->element_type])) {
+			if (file_exists($object->element_type_list[$object->element_type]['listmodelfile'])) {
+				include_once $object->element_type_list[$object->element_type]['listmodelfile'];
+				$modellist = call_user_func($object->element_type_list[$object->element_type]['listmodelclass'].'::liste_modeles', $db);
+			}
+
+			$formquestion = array(
+				array(
+					'label' => $langs->trans('Model'),
+					'name'  => 'refltrdoc_template',
+					'type' => 'select',
+					'values' => $modellist
+				)
+			);
+
+			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('RefLtrAddPDFDoc'), $langs->trans('RefLtrAddPDFDoc'), 'adddocpdf_confirm', $formquestion, 0, 1);
+		}
 	}
 
 	// Confirmation of action xxxx (You can use it for xxx = 'close', xxx = 'reopen', ...)
