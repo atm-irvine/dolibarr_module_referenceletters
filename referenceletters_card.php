@@ -536,7 +536,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print $line_chapter->content_text;
 				print '</div><!-- END docedit_document_body_text -->';
 
-//				var_dump($line_chapter->options_text);
 				if (is_array($line_chapter->options_text) && count($line_chapter->options_text)>0) {
 
 					print '<div class="docedit_document_option">';

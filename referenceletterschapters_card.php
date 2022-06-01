@@ -231,7 +231,7 @@ if (empty($reshook)) {
 
 		if (!empty($options)) {
 			$option_array = explode("\r\n",$options);
-			$object->options_text=$option_array;
+			$_POST['options_text'] = $option_array;
 		}
 	}
 
