@@ -557,6 +557,38 @@ class ReferenceLetters extends CommonObject
 			}
 		}
 
+		if (! $error) {
+			// Clone Chapters
+			require_once 'referenceletterschapters.class.php';
+			$chapters = new ReferenceLettersChapters($this->db);
+			$chaptersnew = new ReferenceLettersChapters($this->db);
+			$TChapters=$chapters->fetchAll('', '', '', '', array('fk_referenceletters' => $this->id));
+
+			if ($result < 0) {
+				$this->errors[] = $object->error;
+				$error ++;
+			} else {
+				if (is_array($TChapters) && count($TChapters) > 0) {
+					foreach ($TChapters as $line ) {
+						$chaptersnew = new ReferenceLettersChapters($this->db);
+						$chaptersnew->entity = $line->entity;
+						$chaptersnew->fk_referenceletters = $object->id;
+						$chaptersnew->lang = $line->lang;
+						$chaptersnew->sort_order = $line->sort_order;
+						$chaptersnew->title = $line->title;
+						$chaptersnew->content_text = $line->content_text;
+						$chaptersnew->options_text = $line->options_text;
+						$chaptersnew->default_doc = $line->default_doc;
+						$result = $chaptersnew->create($user);
+						if ($result < 0) {
+							$this->errors[] = $object->error;
+							$error ++;
+						}
+					}
+				}
+			}
+		}
+
 		unset($object->context['createfromclone']);
 
 		// End
