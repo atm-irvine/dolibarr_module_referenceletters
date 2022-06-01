@@ -730,9 +730,42 @@ class ReferenceLetters extends CommonObject
 	 * @param bool $notrigger  false=launch triggers after, true=disable triggers
 	 * @return int             <0 if KO, >0 if OK
 	 */
-	public function delete(User $user, $notrigger = false)
+	public function delete(User $user, $notrigger = false, $forceDeleteElements = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+
+		$error = 0;
+
+		if ($forceDeleteElements) {
+			$sql = "DELETE FROM " . MAIN_DB_PREFIX . "referenceletters_elements";
+			$sql .= " WHERE fk_referenceletters=" . $this->id;
+
+			dol_syslog(get_class($this) . "::".__METHOD__, LOG_DEBUG);
+			$resql = $this->db->query($sql);
+			if (! $resql) {
+				$error ++;
+				$this->errors[] = "Error " . $this->db->lasterror();
+			}
+		}
+
+
+		if (! $error) {
+			$sql = "DELETE FROM " . MAIN_DB_PREFIX . "referenceletters_referenceletterschapters";
+			$sql .= " WHERE fk_referenceletters=" . $this->id;
+
+			dol_syslog(get_class($this) . "::".__METHOD__, LOG_DEBUG);
+			$resql = $this->db->query($sql);
+			if (! $resql) {
+				$error ++;
+				$this->errors[] = "Error " . $this->db->lasterror();
+			}
+		}
+
+		if (! $error) {
+			return $this->deleteCommon($user, $notrigger);
+		} else {
+			return -1;
+		}
+
 		//return $this->deleteCommon($user, $notrigger, 1);
 	}
 
