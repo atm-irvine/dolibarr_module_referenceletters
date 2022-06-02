@@ -38,10 +38,11 @@ if (! $res) {
 
 require_once 'class/referenceletters.class.php';
 require_once 'class/referenceletterschapters.class.php';
-require_once 'class/referenceletters_tools.class.php';
 require_once 'class/referenceletterselements.class.php';
-require_once 'core/modules/referenceletters/modules_referenceletters.php';
+require_once 'class/referenceletters_tools.class.php';
+require_once 'class/referenceletters_tools.class.php';
 require_once 'lib/referenceletters.lib.php';
+require_once 'core/modules/referenceletters/modules_referenceletters.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formadmin.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
@@ -157,15 +158,15 @@ if ($action == 'buildoc') {
 				if (is_array($line_chapter->options_text) && count($line_chapter->options_text) > 0) {
 					foreach ($line_chapter->options_text as $key => $option_text) {
 						$options[$key] = array (
-								'use_content_option' => GETPOST('use_content_option_' . $line_chapter->id . '_' . $key, 'none'),
-								'text_content_option' => GETPOST('text_content_option_' . $line_chapter->id . '_' . $key, 'none')
+							'use_content_option' => GETPOST('use_content_option_' . $line_chapter->id . '_' . $key, 'none'),
+							'text_content_option' => GETPOST('text_content_option_' . $line_chapter->id . '_' . $key, 'none')
 						);
 					}
 				}
 
 				$content_letter[$line_chapter->id] = array (
-						'content_text' => ReferenceLettersTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id, 'none')),
-						'options' => $options
+					'content_text' => RfltrTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id, 'none')),
+					'options' => $options
 				);
 			}
 		}
@@ -211,7 +212,7 @@ if ($action == 'buildoc') {
 		if ($result < 0)
 			setEventMessage($object_chapters->error, 'errors');
 
-			// Use a big array into class it is serialize
+		// Use a big array into class it is serialize
 		$content_letter = array ();
 		if (is_array($object_chapters->lines_chapters) && count($object_chapters->lines_chapters) > 0) {
 			foreach ( $object_chapters->lines_chapters as $key => $line_chapter ) {
@@ -220,16 +221,16 @@ if ($action == 'buildoc') {
 				if (is_array($line_chapter->options_text) && count($line_chapter->options_text) > 0) {
 					foreach ( $line_chapter->options_text as $key => $option_text ) {
 						$options[$key] = array (
-								'use_content_option' => GETPOST('use_content_option_' . $line_chapter->id . '_' . $key, 'none'),
-								'text_content_option' => GETPOST('text_content_option_' . $line_chapter->id . '_' . $key, 'none')
+							'use_content_option' => GETPOST('use_content_option_' . $line_chapter->id . '_' . $key, 'none'),
+							'text_content_option' => GETPOST('text_content_option_' . $line_chapter->id . '_' . $key, 'none')
 						);
 					}
 				}
 
 				$content_letter[$line_chapter->id] = array (
-						'content_text' => RfltrTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id,'none')),
-						'options' => $options,
-						'same_page' => $line_chapter->same_page
+					'content_text' => RfltrTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id,'none')),
+					'options' => $options,
+					'same_page' => $line_chapter->same_page
 				);
 			}
 		}
@@ -271,7 +272,6 @@ if ($action == 'buildoc') {
 	}
 } elseif ($action == 'confirm_delete' && $confirm == 'yes' && $user->rights->referenceletters->delete) {
 	$result = $object_element->fetch($refletterelemntid);
-
 	if ($result < 0) {
 		setEventMessage($object_element->error, 'errors');
 	} else {
@@ -279,7 +279,7 @@ if ($action == 'buildoc') {
 		if ($result < 0) {
 			setEventMessage($object_element->errors, 'errors');
 		} else {
-			header('Location:' . dol_buildpath('/referenceletters/instance.php', 1) . '?id=' . $object->id . '&element_type=' . $element_type);
+			header('Location:' . dol_buildpath('/referenceletters/referenceletters/instance.php', 1) . '?id=' . $object->id . '&element_type=' . $element_type);
 		}
 	}
 }
@@ -360,7 +360,7 @@ if (is_array($object_element->lines) && count($object_element->lines) > 0) {
 		// title
 		print '<td>' . $line->title_referenceletters . '</td>';
 
-		print '<td>' . dol_print_date($line->datec, 'daytext') . '</td>';
+		print '<td>' . dol_print_date($line->date_creat, 'daytext') . '</td>';
 
 		// File
 		print '<td>';
@@ -413,7 +413,6 @@ if (! empty($idletter)) {
 		$TChapters=$object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' =>$idletter));
 		if ($TChapters < 0)
 			setEventMessage($object_chapters->error, 'errors');
-
 
 		print_fiche_titre($langs->trans("RefLtrChapters"), '', dol_buildpath('/referenceletters/img/object_referenceletters.png', 1), 1);
 
@@ -480,7 +479,6 @@ if (! empty($idletter)) {
 			print '</td>';
 			print '</tr>';
 
-
 			foreach ($TChapters as $key => $line_chapter ) {
 				if ($line_chapter->content_text == '@breakpage@') {
 					print '<tr><td colspan="2" style="text-align:center;font-weight:bold">';
@@ -544,20 +542,18 @@ if (! empty($idletter)) {
 			print '</td>';
 			print '</tr>';
 
-            print '<tr style="background-color:#ffff88;">';
-            print '<td><label for="overwrite_std_doc">'.$form->textwithpicto(
-                    $langs->trans('RefLtrOverwriteStdDoc'),
-                    $langs->trans('RefLtrOverwriteStdDocHelp')).'</label></td>';
-            $checkedStatus = isset($conf->global->DOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT) ? 'checked="checked"' : '';
-            print '<td><input type="checkbox" name="overwrite_std_doc" id="overwrite_std_doc" value="1" '.$checkedStatus.' /></td>';
-            print '</tr>';
+			print '<tr style="background-color:#ffff88;">';
+			print '<td><label for="overwrite_std_doc">'.$form->textwithpicto(
+					$langs->trans('RefLtrOverwriteStdDoc'),
+					$langs->trans('RefLtrOverwriteStdDocHelp')).'</label></td>';
+			$checkedStatus = isset($conf->global->DOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT) ? 'checked="checked"' : '';
+			print '<td><input type="checkbox" name="overwrite_std_doc" id="overwrite_std_doc" value="1" '.$checkedStatus.' /></td>';
+			print '</tr>';
 
 			print '<td colspan="2" align="center">';
 			print '<input type="submit" value="' . $langs->trans('RefLtrCreateDoc') . '" class="button" name="createdoc">';
 			print '</td>';
 		}
-
-
 		print '</table>';
 
 		print '</form>';
@@ -714,23 +710,23 @@ if (! empty($refletterelemntid)) {
 
 ?>
 
-<script type="text/javascript">
+	<script type="text/javascript">
 
-	$('[name*=use_custom]').click(function() {
+		$('[name*=use_custom]').click(function() {
 
-		var is_checked = $(this).prop('checked');
-		var name_checkbox = $(this).attr('name');
-		var type_checkbox = name_checkbox.replace('use_custom_', '');
+			var is_checked = $(this).prop('checked');
+			var name_checkbox = $(this).attr('name');
+			var type_checkbox = name_checkbox.replace('use_custom_', '');
 
-		if(is_checked) {
-			$('.wysiwyg_' + type_checkbox).show();
-		} else {
-			$('.wysiwyg_' + type_checkbox).hide();
-		}
+			if(is_checked) {
+				$('.wysiwyg_' + type_checkbox).show();
+			} else {
+				$('.wysiwyg_' + type_checkbox).hide();
+			}
 
-	});
+		});
 
-</script>
+	</script>
 
 <?php
 // Page end

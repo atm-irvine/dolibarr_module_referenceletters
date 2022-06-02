@@ -24,6 +24,8 @@
 
 // Put here all includes required by your class file
 require_once (DOL_DOCUMENT_ROOT . "/core/class/commonobject.class.php");
+require_once (DOL_DOCUMENT_ROOT . "/custom/referenceletters/core/modules/referenceletters/mod_referenceletters_standard.php");
+
 
 /**
  * Put here description of your class
@@ -37,7 +39,7 @@ class ReferenceLettersElements extends CommonObject
 	public $table_element = 'referenceletters_elements'; // !< Name of table without prefix where object is stored
 	public $id;
 	public $entity;
-	public $ref_int;
+	public $ref;
 	public $fk_referenceletters;
 	public $element_type;
 	public $fk_element;
@@ -75,8 +77,8 @@ class ReferenceLettersElements extends CommonObject
 
 		// Clean parameters
 
-		if (isset($this->ref_int))
-			$this->entity = trim($this->ref_int);
+		if (isset($this->ref))
+			$this->entity = trim($this->ref);
 		if (isset($this->fk_referenceletters))
 			$this->fk_referenceletters = trim($this->fk_referenceletters);
 		if (isset($this->element_type))
@@ -105,7 +107,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql = "INSERT INTO " . MAIN_DB_PREFIX . "referenceletters_elements(";
 
 		$sql .= "entity,";
-		$sql .= "ref_int,";
+		$sql .= "ref,";
 		$sql .= "title,";
 		$sql .= "outputref,";
 		$sql .= "fk_referenceletters,";
@@ -125,7 +127,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= ") VALUES (";
 
 		$sql .= " " . $conf->entity . ",";
-		$sql .= " " . (! isset($this->ref_int) ? 'NULL' : "'" . $this->ref_int . "'") . ",";
+		$sql .= " " . (! isset($this->ref) ? 'NULL' : "'" . $this->ref . "'") . ",";
 		$sql .= " " . (! isset($this->title) ? 'NULL' : "'" . $this->title . "'") . ",";
 		$sql .= " " . (empty($this->outputref) ? '0' : $this->outputref) . ",";
 		$sql .= " " . (! isset($this->fk_referenceletters) ? 'NULL' : $this->fk_referenceletters) . ",";
@@ -193,7 +195,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " t.rowid,";
 
 		$sql .= " t.entity,";
-		$sql .= " t.ref_int,";
+		$sql .= " t.ref,";
 		$sql .= " t.title,";
 		$sql .= " t.outputref,";
 		$sql .= " t.fk_referenceletters,";
@@ -225,7 +227,7 @@ class ReferenceLettersElements extends CommonObject
 				$this->id = $obj->rowid;
 
 				$this->entity = $obj->entity;
-				$this->ref_int = $obj->ref_int;
+				$this->ref = $obj->ref;
 				$this->fk_referenceletters = $obj->fk_referenceletters;
 				$this->element_type = $obj->element_type;
 				$this->fk_element = $obj->fk_element;
@@ -270,7 +272,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql = "SELECT";
 		$sql .= " t.rowid,";
 		$sql .= " t.entity,";
-		$sql .= " t.ref_int,";
+		$sql .= " t.ref,";
 		$sql .= " t.title,";
 		$sql .= " t.outputref,";
 		$sql .= " t.fk_referenceletters,";
@@ -311,7 +313,7 @@ class ReferenceLettersElements extends CommonObject
 					$line->id = $obj->rowid;
 
 					$line->entity = $obj->entity;
-					$line->ref_int = $obj->ref_int;
+					$line->ref = $obj->ref;
 					$line->fk_referenceletters = $obj->fk_referenceletters;
 					$line->outputref = $obj->outputref;
 					$line->element_type = $obj->element_type;
@@ -353,7 +355,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql = "SELECT";
 		$sql .= " t.rowid,";
 		$sql .= " t.entity,";
-		$sql .= " t.ref_int,";
+		$sql .= " t.ref,";
 		$sql .= " t.title,";
 		$sql .= " t.outputref,";
 		$sql .= " t.fk_referenceletters,";
@@ -367,7 +369,7 @@ class ReferenceLettersElements extends CommonObject
 		$sql .= " t.tms";
 		$sql .= " ,p.title as title_referenceletters";
 		$sql .= " FROM " . MAIN_DB_PREFIX . "referenceletters_elements as t";
-		$sql .= " INNER JOIN " . MAIN_DB_PREFIX . "referenceletters as p ON p.rowid=t.fk_referenceletters";
+		$sql .= " INNER JOIN " . MAIN_DB_PREFIX . "referenceletters_referenceletters as p ON p.rowid=t.fk_referenceletters";
 		$sql .= " WHERE t.entity IN (" . getEntity('referenceletters') . ")";
 
 		if (is_array($filter)) {
@@ -463,7 +465,7 @@ class ReferenceLettersElements extends CommonObject
 						$line->id = $obj->rowid;
 
 						$line->entity = $obj->entity;
-						$line->ref_int = $obj->ref_int;
+						$line->ref = $obj->ref;
 						$line->fk_referenceletters = $obj->fk_referenceletters;
 						$line->outputref = $obj->outputref;
 						$line->element_type = $obj->element_type;
@@ -514,8 +516,8 @@ class ReferenceLettersElements extends CommonObject
 
 		if (isset($this->entity))
 			$this->entity = trim($this->entity);
-		if (isset($this->ref_int))
-			$this->entity = trim($this->ref_int);
+		if (isset($this->ref))
+			$this->entity = trim($this->ref);
 		if (isset($this->fk_referenceletters))
 			$this->fk_referenceletters = trim($this->fk_referenceletters);
 		if (isset($this->element_type))
@@ -541,7 +543,7 @@ class ReferenceLettersElements extends CommonObject
 		// Update request
 		$sql = "UPDATE " . MAIN_DB_PREFIX . "referenceletters_elements SET";
 
-		$sql .= " ref_int=" . (isset($this->ref_int) ? "'" . $this->db->escape($this->ref_int) . "'" : "null") . ",";
+		$sql .= " ref=" . (isset($this->ref) ? "'" . $this->db->escape($this->ref) . "'" : "null") . ",";
 		$sql .= " title=" . (isset($this->title) ? "'" . $this->db->escape($this->title) . "'" : "null") . ",";
 		$sql .= " fk_referenceletters=" . (isset($this->fk_referenceletters) ? $this->fk_referenceletters : "null") . ",";
 		$sql .= " outputref=" . (! empty($this->outputref) ? $this->outputref : "0") . ",";
@@ -716,7 +718,7 @@ class ReferenceLettersElements extends CommonObject
 		$this->id = 0;
 
 		$this->entity = '';
-		$this->ref_int = 'LTR0001';
+		$this->ref = 'LTR0001';
 		$this->fk_referenceletters = '';
 		$this->element_type = '';
 		$this->fk_element = '';
@@ -729,58 +731,60 @@ class ReferenceLettersElements extends CommonObject
 	}
 
 	/**
-	 * Returns the reference to the following non used model letters used depending on the active numbering module
-	 * defined into REF_LETTER_ADDON
+	 *  Returns the reference to the following non used object depending on the active numbering module.
 	 *
-	 * @param int $fk_user Id
-	 * @param societe $objsoc Object
-	 * @return string Reference libre pour la lead
+	 *  @return string      		Object free reference
 	 */
-	function getNextNumRef($objsoc, $fk_user = '', $element_type = '') {
-		global $conf, $langs;
+	public function getNextNumRef()
+	{
+		global $langs, $conf;
 		$langs->load("referenceletters@referenceletters");
 
-		$dirmodels = array_merge(array(
-			'/'
-		), ( array ) $conf->modules_parts['models']);
+		if (empty($conf->global->REFERENCELETTERS_REFERENCELETTERS_ADDON)) {
+			$conf->global->SCRUMPROJECT_SCRUMCARD_ADDON = 'mod_referenceletters_standard';
+		}
 
-		if (! empty($conf->global->REF_LETTER_ADDON)) {
-			foreach ( $dirmodels as $reldir ) {
-				$dir = dol_buildpath($reldir . "core/modules/referenceletters/");
-				if (is_dir($dir)) {
-					$handle = opendir($dir);
-					if (is_resource($handle)) {
-						$var = true;
+		if (!empty($conf->global->REFERENCELETTERS_REFERENCELETTERS_ADDON))
+		{
+			$mybool = false;
 
-						while ( ($file = readdir($handle)) !== false ) {
-							if ($file == $conf->global->REF_LETTER_ADDON . '.php') {
-								$file = substr($file, 0, dol_strlen($file) - 4);
-								require_once $dir . $file . '.php';
+			$file = $conf->global->REFERENCELETTERS_REFERENCELETTERS_ADDON.".php";
+			$classname = $conf->global->REFERENCELETTERS_REFERENCELETTERS_ADDON;
 
-								$module = new $file();
+			// Include file with class
+			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
+			foreach ($dirmodels as $reldir)
+			{
+				$dir = dol_buildpath($reldir."core/modules/scrumproject/");
 
-								// Chargement de la classe de numerotation
-								$classname = $conf->global->REF_LETTER_ADDON;
+				// Load file with numbering class (if found)
+				$mybool |= @include_once $dir.$file;
+			}
 
-								$obj = new $classname();
+			if ($mybool === false)
+			{
+				dol_print_error('', "Failed to include file ".$file);
+				return '';
+			}
 
-								$numref = "";
-								$numref = $obj->getNextValue($fk_user, $element_type, $objsoc, $this);
+			if (class_exists($classname)) {
+				$obj = new $classname();
+				$numref = $obj->getNextValue($this);
 
-								if ($numref != "") {
-									return $numref;
-								} else {
-									$this->error = $obj->error;
-									return "";
-								}
-							}
-						}
-					}
+				if ($numref != '' && $numref != '-1')
+				{
+					return $numref;
+				} else {
+					$this->error = $obj->error;
+					//dol_print_error($this->db,get_class($this)."::getNextNumRef ".$obj->error);
+					return "";
 				}
+			} else {
+				print $langs->trans("Error")." ".$langs->trans("ClassNotFound").' '.$classname;
+				return "";
 			}
 		} else {
-			$langs->load("errors");
-			print $langs->trans("Error") . " " . $langs->trans("ErrorModuleSetupNotComplete");
+			print $langs->trans("ErrorNumberingModuleNotSetup", $this->element);
 			return "";
 		}
 	}
@@ -799,7 +803,7 @@ class ReferenceLettersElements extends CommonObject
 
 		$url = dol_buildpath('/referenceletters/instance.php', 1) . '?id=' . $this->fk_element . '&amp;element_type=' . $this->element_type;
 
-		$result = '<a href="' . $url . '">' . ((! empty($withpicto)) ? img_pdf($this->ref_int) : '') . $this->ref_int . '</a>';
+		$result = '<a href="' . $url . '">' . ((! empty($withpicto)) ? img_pdf($this->ref) : '') . $this->ref . '</a>';
 
 		return $result;
 	}
@@ -808,7 +812,7 @@ class ReferenceLettersElementsLine
 {
 	public $id;
 	public $entity;
-	public $ref_int;
+	public $ref;
 	public $fk_referenceletters;
 	public $element_type;
 	public $fk_element;

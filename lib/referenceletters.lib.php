@@ -224,3 +224,84 @@ function pdf_getInstance_refletters($object, $instance_letter, &$model, $format 
 
 	return $pdf;
 }
+
+/**
+ * Create a document onto disk according to template module.
+ *
+ * @param DoliDB $db Database handler
+ * @param object $object Object proposal
+ * @param object $instance_letter Instance letter
+ * @param Translate $outputlangs Object langs to use for output
+ * @param string $element_type element type
+ * @return int 0 if KO, 1 if OK
+ */
+function referenceletters_pdf_create($db, $object, $instance_letter, $outputlangs, $element_type) {
+	global $conf, $user, $langs;
+
+	$error = 0;
+	$filefound = 0;
+
+	// Search template files
+	$file = dol_buildpath('/referenceletters/core/modules/referenceletters/pdf/pdf_rfltr_' . $element_type . '.modules.php');
+	if (file_exists($file)) {
+		$filefound = 1;
+	}
+
+	$classname = 'pdf_rfltr_' . $element_type;
+	// Charge le modele
+	if ($filefound) {
+		require_once $file;
+
+		/** @var pdf_rfltr_propal|pdf_rfltr_order|pdf_rfltr_invoice|pdf_rfltr_contract|pdf_rfltr_thirdparty|pdf_rfltr_contact|pdf_rfltr_supplier_proposal|pdf_rfltr_order_supplier|pdf_rfltr_shipping $obj */
+		$obj = new $classname($db);
+
+		var_dump($classname);
+		// We save charset_output to restore it because write_file can change it if needed for
+		// output format that does not support UTF8.
+		$res = $obj->write_file($object, $instance_letter, $outputlangs);
+		if ($res > 0) {
+			return 1;
+		} else {
+			setEventMessage('referenceletters_pdf_create Error: ' . $obj->error, 'errors');
+			return - 1;
+		}
+	} else {
+		setEventMessage($langs->trans("Error") . " " . $langs->trans("ErrorFileDoesNotExists", $file), 'errors');
+		return - 1;
+	}
+}
+
+/**
+ *
+ * @param object $pdf
+ * @param int $id
+ */
+function importImageBackground(&$pdf, $id) {
+	global $conf;
+	if (empty($conf->global->MAIN_DISABLE_FPDI)) {
+
+		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+		// add doc from attached files of training
+		$upload_dir = $conf->referenceletters->dir_output . "/referenceletters/" . $id;
+		$filearray = dol_dir_list($upload_dir, "files", 0, '\.pdf$', '\.meta$', "name", SORT_ASC, 1);
+		if (is_array($filearray) && count($filearray) > 0) {
+			// Take first PDF file added
+			$filedetail = reset($filearray);
+			if (file_exists($filedetail['fullname'])) {
+				$count = $pdf->setSourceFile($filedetail['fullname']);
+				// import only first pages
+				if ($count > 0) {
+					$tplIdx = $pdf->importPage(1);
+					if ($tplIdx !== false) {
+						$pdf->useTemplate($tplIdx);
+					} else {
+						setEventMessages(null, array(
+							$filedetail['fullname'] . ' cannot be added to current doc, probably Protected PDF'
+						), 'warnings');
+					}
+				}
+			}
+		}
+	}
+}

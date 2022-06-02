@@ -125,7 +125,7 @@ class ReferenceLettersTools {
 		$instance_letter->srcobject=$object;
 		$instance_letter->content_letter = self::setImgLinkToUrlWithArray($content_letter);
 		if(is_object($object) && empty($object->thirdparty)) $object->fetch_thirdparty();
-		//$instance_letter->ref_int = $instance_letter->getNextNumRef($object->thirdparty, $user->id, $element_type); // TODo pour l'instant on garde le même nom de pdf que fait agefodd
+		//$instance_letter->ref = $instance_letter->getNextNumRef($object->thirdparty, $user->id, $element_type); // TODo pour l'instant on garde le même nom de pdf que fait agefodd
 		$instance_letter->title = $object_refletter->title;
 		$instance_letter->fk_element = $object->id;
 		$instance_letter->element_type = $object_refletter->element_type;

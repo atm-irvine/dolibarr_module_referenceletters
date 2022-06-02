@@ -56,7 +56,7 @@ $page = GETPOST('page', 'int');
 $page = intval($page);
 
 // Search criteria
-$search_ref_int = GETPOST("search_ref_int", 'none');
+$search_ref = GETPOST("search_ref", 'none');
 $search_element_type = GETPOST("search_element_type", 'none');
 $search_title = GETPOST("search_title", 'none');
 $search_company = GETPOST("search_company", 'none');
@@ -66,7 +66,7 @@ $limit = GETPOST('limit','int')?GETPOST('limit','int'):$conf->liste_limit;
 if ($limit > 0 && $limit != $conf->liste_limit) $options.='&limit='.$limit;
 // Do we click on purge search criteria ?
 if (GETPOST("button_removefilter_x", 'none')) {
-	$search_ref_int = '';
+	$search_ref = '';
 	$search_element_type = '';
 	$search_company = '';
 	$search_ref = '';
@@ -74,9 +74,9 @@ if (GETPOST("button_removefilter_x", 'none')) {
 }
 
 $filter = array ();
-if (! empty($search_ref_int)) {
-	$filter['t.ref_int'] = $search_ref_int;
-	$options .= '&amp;search_ref_int=' . $search_ref_int;
+if (! empty($search_ref)) {
+	$filter['t.ref'] = $search_ref;
+	$options .= '&amp;search_ref=' . $search_ref;
 }
 if (! empty($search_element_type)) {
 	$filter['t.element_type'] = $search_element_type;
@@ -168,7 +168,7 @@ if ($num != - 1) {
 	$i = 0;
 	print '<table class="noborder" width="100%">';
 	print '<tr class="liste_titre">';
-	print_liste_field_titre($langs->trans("RefLtrRef"), $_SERVEUR['PHP_SELF'], "t.ref_int", "", $options, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans("RefLtrRef"), $_SERVEUR['PHP_SELF'], "t.ref", "", $options, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans("RefLtrElement"), $_SERVEUR['PHP_SELF'], "t.element_type", "", $options, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans("RefLtrTitle"), $_SERVEUR['PHP_SELF'], "t.title", "", $options, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans("Ref"), $_SERVEUR['PHP_SELF'], "", "", $options, '', $sortfield, $sortorder);
@@ -184,7 +184,7 @@ if ($num != - 1) {
 
 	print '<tr class="liste_titre">';
 
-	print '<th><input type="text" class="flat" name="search_ref_int" value="' . $search_ref_int . '" size="10"></th>';
+	print '<th><input type="text" class="flat" name="search_ref" value="' . $search_ref . '" size="10"></th>';
 
 	print '<th>';
 	print $referenceletters_tools->selectElementType($search_element_type, 'search_element_type', 1);
@@ -216,7 +216,7 @@ if ($num != - 1) {
 		print "<tr $bc[$var]>";
 
 		// Title
-		print '<td><a href="' . dol_buildpath('referenceletters/referenceletters/instance.php', 1) . '?id=' . $line->fk_element . '&element_type=' . $line->element_type . '">' . $line->ref_int . '</a></td>';
+		print '<td><a href="' . dol_buildpath('referenceletters/referenceletters/instance.php', 1) . '?id=' . $line->fk_element . '&element_type=' . $line->element_type . '">' . $line->ref . '</a></td>';
 
 		// Element
 		require_once $object_ref->element_type_list[$line->element_type]['classpath'] . $object_ref->element_type_list[$line->element_type]['class'];

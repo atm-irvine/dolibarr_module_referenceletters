@@ -25,6 +25,8 @@
 
 require_once TCPDF_PATH.'tcpdf.php';
 require_once TCPDI_PATH.'tcpdi.php';
+dol_include_once('/referenceletters/lib/referenceletters.lib.php');
+
 /**
  * Class ActionsReferenceLetters
  */
