@@ -96,6 +96,7 @@ if (!class_exists('FormSetup')) {
 
 $formSetup = new FormSetup($db);
 
+/*
 
 // Hôte
 $item = $formSetup->newItem('NO_PARAM_JUST_TEXT');
@@ -128,6 +129,8 @@ $formSetup->newItem('REFERENCELETTERS_MYPARAM6')->setAsSecureKey()->enabled = 0;
 
 $formSetup->newItem('Title')->setAsTitle();
 
+
+
 // Setup conf REFERENCELETTERS_MYPARAM8
 $item = $formSetup->newItem('REFERENCELETTERS_MYPARAM8');
 $TField = array(
@@ -159,6 +162,29 @@ $item->helpText = $langs->transnoentities('AnHelpMessage');
 //$item->fieldInputOverride = false; // set this var to override field input
 //$item->fieldOutputOverride = false; // set this var to override field output
 
+*/
+
+$formSetup->newItem('REF_LETTER_CREATEEVENT')->setAsYesNo();
+$formSetup->newItem('REF_LETTER_EVTCOPYFILE')->setAsYesNo();
+$item = $formSetup->newItem('REF_LETTER_TYPEEVENTNAME');
+if($conf->global->REF_LETTER_TYPEEVENTNAME){
+	$TField = array(
+		$conf->global->REF_LETTER_TYPEEVENTNAME => $langs->trans("RefLtrREF_LETTER_TYPEEVENTNAME_".$conf->global->REF_LETTER_TYPEEVENTNAME),
+	);
+} else {
+	$TField = array(
+		'normal' => $langs->trans("RefLtrREF_LETTER_TYPEEVENTNAME_normal"),
+		'other' => $langs->trans("RefLtrREF_LETTER_TYPEEVENTNAME_other"),
+	);
+}
+$formSetup->newItem('REF_LETTER_TYPEEVENTNAME')->setAsSelect($TField);
+
+var_dump($TField);
+//$item->setAsSelect($TField);
+$formSetup->newItem('REF_LETTER_OUTPUTREFLET')->setAsYesNo();
+$formSetup->newItem('REF_LETTER_PREDEF_HEADER_AND_FOOTER')->setAsYesNo();
+$formSetup->newItem('DOCEDIT_CHAPTERS_INLINE_EDITION')->setAsYesNo();
+$formSetup->newItem('DOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT')->setAsYesNo();
 
 $setupnotempty =+ count($formSetup->items);
 
@@ -401,8 +427,6 @@ foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
 								// Info
 								$htmltooltip = '';
 								$htmltooltip .= ''.$langs->trans("Version").': <b>'.$module->getVersion().'</b><br>';
-
-								var_dump($module);
 								$nextval = $module->getNextValue($mytmpinstance);
 								if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
 									$htmltooltip .= ''.$langs->trans("NextValue").': ';

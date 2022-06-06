@@ -36,7 +36,7 @@ class mod_referenceletters_standard extends ModeleNumRefReferenceLetters
 	 */
 	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
 
-	public $prefix = 'SC';
+	public $prefix = 'LTR';
 
 	/**
 	 * @var string Error code (or message)
