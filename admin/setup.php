@@ -96,8 +96,8 @@ if (!class_exists('FormSetup')) {
 
 $formSetup = new FormSetup($db);
 
-/*
 
+/*
 // Hôte
 $item = $formSetup->newItem('NO_PARAM_JUST_TEXT');
 $item->fieldOverride = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'];
@@ -162,9 +162,9 @@ $item->helpText = $langs->transnoentities('AnHelpMessage');
 //$item->fieldInputOverride = false; // set this var to override field input
 //$item->fieldOutputOverride = false; // set this var to override field output
 
-*/
 
-$formSetup->newItem('REF_LETTER_CREATEEVENT')->setAsYesNo();
+*/
+$item = $formSetup->newItem('REF_LETTER_CREATEEVENT')->setAsYesNo();
 $formSetup->newItem('REF_LETTER_EVTCOPYFILE')->setAsYesNo();
 $item = $formSetup->newItem('REF_LETTER_TYPEEVENTNAME');
 if($conf->global->REF_LETTER_TYPEEVENTNAME){
@@ -179,12 +179,13 @@ if($conf->global->REF_LETTER_TYPEEVENTNAME){
 }
 $formSetup->newItem('REF_LETTER_TYPEEVENTNAME')->setAsSelect($TField);
 
-var_dump($TField);
 //$item->setAsSelect($TField);
 $formSetup->newItem('REF_LETTER_OUTPUTREFLET')->setAsYesNo();
-$formSetup->newItem('REF_LETTER_PREDEF_HEADER_AND_FOOTER')->setAsYesNo();
+$item = $formSetup->newItem('REF_LETTER_PREDEF_HEADER_AND_FOOTER')->setAsYesNo();
+$item->helpText = $langs->trans('RefLtrHelpREF_LETTER_PREDEF_HEADER_AND_FOOTER');
 $formSetup->newItem('DOCEDIT_CHAPTERS_INLINE_EDITION')->setAsYesNo();
-$formSetup->newItem('DOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT')->setAsYesNo();
+$item = $formSetup->newItem('DOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT')->setAsYesNo();
+$item->helpText = $langs->trans('RefLtrHelpDOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT');
 
 $setupnotempty =+ count($formSetup->items);
 

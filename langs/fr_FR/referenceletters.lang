@@ -235,4 +235,12 @@ RefLtrErrorCannotRecognizeModel=Erreur technique DocEdit : impossible de déterm
 
 #SETUP
 
-REF_LETTER_CREATEEVENT
+ModelStd=Modèles standard
+REF_LETTER_CREATEEVENT=Créé un événement dans l'agenda lors de la création d'un modèle de document
+REF_LETTER_EVTCOPYFILE=- Copie le document PDF dans les fichiers joints de l'événement créé
+REF_LETTER_TYPEEVENTNAME=- Nom de l'évenement créé
+REF_LETTER_OUTPUTREFLET=Afficher le titre et la référence du document dans l'entête du document PDF
+REF_LETTER_PREDEF_HEADER_AND_FOOTER=Utiliser un modèle d'entête et de pied de page personnalisé
+DOCEDIT_CHAPTERS_INLINE_EDITION=Utiliser le mode "Edition dans le texte" d'un document
+DOCEDIT_OVERWRITE_STD_DOC_BY_DEFAULT=Par défaut, copier le document généré à l’emplacement du document standard
+REFERENCELETTERS_REF_LETTER_CREATEEVENTTooltip = My param 1 tooltip
