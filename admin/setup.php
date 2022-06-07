@@ -298,6 +298,10 @@ if ($action == 'updateMask') {
 		$constforval = 'REFERENCELETTERS_'.strtoupper($tmpobjectkey).'_ADDON_PDF';
 		dolibarr_del_const($db, $constforval, $conf->entity);
 	}
+} elseif ($action == 'replacetemplate') {
+	define('INC_FROM_DOLIBARR', true);
+	$reinstalltemplate=true;
+	dol_include_once('/referenceletters/scripts/create-maj-base.php');
 }
 
 
@@ -337,6 +341,16 @@ if ($action == 'edit') {
 } else {
 	print '<br>'.$langs->trans("NothingToSetup");
 }
+
+print load_fiche_titre($langs->trans("ModelStd"), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="oddeven"><td colspan="2" class="col-setup-title">'.$langs->trans('RefLtrReInstallTemplate') . '<br><br>';
+print '</td><td align="center">';
+print '<a href="'.$_SERVER["PHP_SELF"].'?action=replacetemplate" class="butAction">'.$langs->trans('RefLtrReInstallTemplate').'</a>';
+print '</td>';
+print '</tr>';
+print '</table>';
 
 
 $moduledir = 'referenceletters';
@@ -452,6 +466,7 @@ foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
 				}
 			}
 		}
+
 		print "</table><br>\n";
 	}
 
