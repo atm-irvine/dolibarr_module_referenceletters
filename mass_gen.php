@@ -44,13 +44,16 @@
 
 	echo '</table>';
 
-//	if(!empty($refltrelement_type) && $idletter) {
 
-		_show_ref_letter($idletter);
+	if(!empty($refltrelement_type) && $idletter) {
+
+	_show_ref_letter($idletter);
+
+
 
 //		if($refltrelement_type == 'invoice') {
 //
-//			_list_invoice();
+			_list_invoice();
 //
 //		}else if($refltrelement_type == 'thirdparty') {
 //			_list_thirdparty();
@@ -59,7 +62,7 @@
 //			_list_contact();
 //		}
 //
-//	}
+	}
 
 
 	echo '</form>';
@@ -191,174 +194,175 @@ function _show_ref_letter($idletter) {
 function _list_invoice() {
 	global $conf,$db,$user,$langs,$refltrelement_type,$idletter;
 
-	//J'ai essayé, mais le copier/coller était trop dur
-	$l=new Listview($db, 'listInvoice');
+	$limit = GETPOST('limit', 'int') ?GETPOST('limit', 'int') : $conf->liste_limit;
+	$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
+	if (empty($page) || $page < 0 || GETPOST('button_search', 'alpha') || GETPOST('button_removefilter', 'alpha')) {
+		$page = 0;
+	}     // If $page is not defined, or '' or -1 or if we click on clear filters
+	$offset = $limit * $page;
+	$pageprev = $page - 1;
+	$pagenext = $page + 1;
 
-	$sql="SELECT DISTINCT f.rowid,f.type, ";
-	if(floatval(DOL_VERSION) > 9) {
-		$sql .= " f.ref as facnumber,";
-	}
-	else{
-		$sql .= " f.facnumber,";
-	}
-	$sql.="f.datef,f.date_lim_reglement,p.datep, s.nom,s.town,s.zip,f.fk_statut, '' as 'action'
-		FROM ".MAIN_DB_PREFIX."facture as f
-			LEFT JOIN ".MAIN_DB_PREFIX."societe as s ON (f.fk_soc = s.rowid)
-			LEFT JOIN ".MAIN_DB_PREFIX."paiement_facture pf ON (pf.fk_facture=f.rowid)
-			LEFT JOIN ".MAIN_DB_PREFIX."paiement p ON (p.rowid=pf.fk_paiement)
-		WHERE f.entity IN (".getEntity('invoice',1).") ";
-	//var_dump($sql);
-	$liststatus=array('0'=>$langs->trans("BillShortStatusDraft"), '1'=>$langs->trans("BillShortStatusNotPaid"), '2'=>$langs->trans("BillShortStatusPaid"), '3'=>$langs->trans("BillShortStatusCanceled"));
+	$search_ref = GETPOST('sf_ref') ?GETPOST('sf_ref', 'alpha') : GETPOST('search_ref', 'alpha');
 
-	echo $l->render($sql,array(
+	$search_datelimit_startday = GETPOST('search_datelimit_startday', 'int');
+	$search_datelimit_startmonth = GETPOST('search_datelimit_startmonth', 'int');
+	$search_datelimit_startyear = GETPOST('search_datelimit_startyear', 'int');
+	$search_datelimit_start = dol_mktime(0, 0, 0, $search_datelimit_startmonth, $search_datelimit_startday, $search_datelimit_startyear);
 
-			'title'=>array(
-					'facnumber'=>$langs->trans("Ref"),
-					'datef'=>$langs->trans("DateInvoice"),
-					'date_lim_reglement'=>$langs->trans("DateDue"),
-					'datep'=>$langs->trans("DatePayment"),
-					'nom'=>$langs->trans("ThirdParty"),
-					'town'=>$langs->trans("Town"),
-					'zip'=>$langs->trans("Zip"),
-					'fk_statut'=>$langs->trans("Status"),
-					'action'=>$langs->trans("Action").' <input type="checkbox" value="1" id="check-all" checked="checked" >',
-			)
-			,'eval'=>array(
-					'facnumber'=>'_get_link_invoice(@rowid@)'
-					,'fk_statut'=>'_get_status_invoice(@rowid@)'
-					,'action'=>'_get_check(@rowid@)'
-			)
-			,'type'=>array(
-					'datef'=>'date'
-					,'date_lim_reglement'=>'date'
-					,'datep'=>'date'
-			)
-			,'search'=>array(
+	$search_datelimit_endday = GETPOST('search_datelimit_endday', 'int');
+	$search_datelimit_endmonth = GETPOST('search_datelimit_endmonth', 'int');
+	$search_datelimit_endyear = GETPOST('search_datelimit_endyear', 'int');
+	$search_datelimit_end = dol_mktime(0, 0, 0, $search_datelimit_endmonth, $search_datelimit_endday, $search_datelimit_endyear);
 
-					'date_lim_reglement'=>array('search_type'=>'calendars')
-					,'datep'=>array('search_type'=>'calendars','table'=>'p')
-					,'fk_statut'=>$liststatus
-			)
-			,'list'=>array(
-					'param_url'=>'refltrelement_type=invoice'
-			)
-			,'limit'=>array(
-					'nbLine'=>(GETPOST('limit','int') ? GETPOST('limit', 'none') : $conf->liste_limit )
-			)
+	$search_datep_startday = GETPOST('search_datep_startday', 'int');
+	$search_datep_startmonth = GETPOST('search_datep_startmonth', 'int');
+	$search_datep_startyear = GETPOST('search_datep_startyear', 'int');
+	$search_datep_start = dol_mktime(0, 0, 0, $search_datep_startmonth, $search_datep_startday, $search_datep_startyear);
 
-	));
+	$search_datep_endday = GETPOST('search_datep_endday', 'int');
+	$search_datep_endmonth = GETPOST('search_datep_endmonth', 'int');
+	$search_datep_endyear = GETPOST('search_datep_endyear', 'int');
+	$search_datep_end = dol_mktime(0, 0, 0, $search_datep_endmonth, $search_datep_endday, $search_datep_endyear);
 
-	if($refltrelement_type) {
 
-		echo '<div class="tabsAction">';
-		echo '<input type="button" class="butAction" name="bt_generate" value="'.$langs->trans('Generate').'"> ';
+	$form = new Form($db);
 
-		echo '</div>';
 
+	$sql = "SELECT fac.ref, fac.datef, fac.date_lim_reglement, p.datep, soc.nom, soc.town, soc.zip, fac.fk_statut";
+	$sql.= " FROM ".MAIN_DB_PREFIX."facture fac";
+	$sql.= " JOIN ".MAIN_DB_PREFIX."societe s ON f.fk_soc = s.rowid";
+	$sql.= " JOIN ".MAIN_DB_PREFIX."paiement_facture pf ON fac.rowid = pf.fk_facture";
+	$sql.= " JOIN ".MAIN_DB_PREFIX."paiement p ON pf.fk_paiement = p.rowid";
+	$sql.= " WHERE 1=1";
+
+	if ($search_ref) {
+		$sql .= natural_search('fac.ref', $search_ref);
 	}
 
+	if ($search_datelimit_start) {
+		$sql .= " AND f.date_lim_reglement >= '".$db->idate($search_datelimit_start)."'";
+	}
+	if ($search_datelimit_end) {
+		$sql .= " AND f.date_lim_reglement <= '".$db->idate($search_datelimit_end)."'";
+	}
 
-	?>
-	<script type="text/javascript">
-	$("#check-all").change(function() {
+	if ($search_datep_start) {
+		$sql .= " AND p.datep >= '".$db->idate($search_datep_start)."'";
+	}
+	if ($search_datep_end) {
+		$sql .= " AND f.datep <= '".$db->idate($search_datep_end)."'";
+	}
 
-		$("input[rel=invoicetogen]").prop("checked", $(this).prop("checked"));
-
-	});
-
-	$('input[name=bt_generate]').click(function() {
-
-		var data = { langs_chapter:"<?php echo $langs->defaultlang; ?>", justinformme:1, element_type: "<?php echo $refltrelement_type ?>", action: "buildoc", idletter:"<?php echo $idletter?>" };
-
-		$('#ref-letter input,#ref-letter textarea').each(function(i,item) {
-			$item = $(item);
-
-			if($item.attr('type') == 'checkbox') {
-				if($item.prop('checked')) data[$item.attr('name')]= $item.val();
-				else null;
+	$search_status = GETPOST('search_status', 'intcomma');
+	if ($search_status != '-1' && $search_status != '') {
+		if (is_numeric($search_status) && $search_status >= 0) {
+			if ($search_status == '0') {
+				$sql .= " AND f.fk_statut = 0"; // draft
 			}
-			else{
-				data[$item.attr('name')]=$item.val();
+			if ($search_status == '1') {
+				$sql .= " AND f.fk_statut = 1"; // unpayed
 			}
+			if ($search_status == '2') {
+				$sql .= " AND f.fk_statut = 2"; // payed     Not that some corrupted data may contains f.fk_statut = 1 AND f.paye = 1 (it means payed too but should not happend. If yes, reopen and reclassify billed)
+			}
+			if ($search_status == '3') {
+				$sql .= " AND f.fk_statut = 3"; // abandonned
+			}
+		} else {
+			$sql .= " AND fac.fk_statut IN (".$db->sanitize($db->escape($search_status)).")"; // When search_status is '1,2' for example
+		}
+	}
+
+	// Complete request and execute it with limit
+	$sql .= ' ORDER BY ';
+	$listfield = explode(',', $sortfield);
+	$listorder = explode(',', $sortorder);
+	foreach ($listfield as $key => $value) {
+		$sql .= $listfield[$key].' '.($listorder[$key] ? $listorder[$key] : 'DESC').',';
+	}
+	$sql .= ' fac.rowid DESC ';
+
+	if ($limit) {
+		$sql .= $db->plimit($limit + 1, $offset);
+	}
+
+	$resql = $db->query($sql);
+
+	if ($resql) {
+		$num = $db->num_rows($resql);
+
+	}
+
+	print '<form method="POST" name="searchFormList" action="'.$_SERVER["PHP_SELF"].'">'."\n";
+	print '<input type="hidden" name="token" value="'.newToken().'">';
+	print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
+	if (!in_array($massaction, array('makepayment'))) {
+		print '<input type="hidden" name="action" value="list">';
+	}
+	print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
+	print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
+	print '<input type="hidden" name="search_status" value="'.$search_status.'">';
+
+	print_barre_liste($langs->trans('BillsCustomers'), $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'bill', 0, $newcardbutton, '', $limit, 0, 0, 1);
+
+	$selectedfields .= $form->showCheckAddButtons('checkforselect', 1);
+
+	print '<div class="div-table-responsive">';
+	print '<table class="tagtable liste">'."\n";
+
+	print '<tr class="liste_titre_filter">';
 
 
+	print '<td class="liste_titre" align="left">';
+	print '<input class="flat maxwidth50imp" type="text" name="search_ref" value="'.dol_escape_htmltag($search_ref).'">';
+	print '</td>';
 
-		});
-		console.log(data);
-		var $togen = $('input[rel=invoicetogen]:checked');
-		var nb = $togen.length;
-		var cpt = 0;
-		var error = 0;
+	print '<td class="liste_titre">';
+	print '</td>';
 
-		var $bar = $('<div id="progressbar"></div>').progressbar({
-		      max : nb
-		      ,value : 0
-	    });
+	print '<td class="liste_titre center">';
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datelimit_start ? $search_datelimit_start : -1, 'search_datelimit_start', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('From'));
+	print '</div>';
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datelimit_end ? $search_datelimit_end : -1, 'search_datelimit_end', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('to'));
+	print '</div>';
+	print '</td>';
 
-		var $div = $('<div />');
-		$div.append($bar);
-		$div.append('<div class="info"></div>');
+	print '<td class="liste_titre center">';
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datep_start ? $search_datep_start : -1, 'search_datep_start', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('From'));
+	print '</div>';
+	print '<div class="nowrap">';
+	print $form->selectDate($search_datep_end ? $search_datep_end : -1, 'search_datep_end', 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('to'));
+	print '</div>';
+	print '</td>';
 
-		$div.dialog({
-			'title':"<?php echo $langs->transnoentities('GenerationInProgress') ?>"
-			,'modal':true
+	print '<td class="liste_titre">';
+	print '</td>';
 
-		});
+	print '<td class="liste_titre">';
+	print '</td>';
 
+	print '<td class="liste_titre">';
+	print '</td>';
 
-		$togen.each(function(i,item) {
-			var $item = $(item);
+	print '<td class="liste_titre maxwidthonsmartphone right">';
+	$liststatus = array('0'=>$langs->trans("BillShortStatusDraft"), '1'=>$langs->trans("BillShortStatusNotPaid"), '0,1'=>$langs->trans("BillShortStatusDraft").'+'.$langs->trans("BillShortStatusNotPaid"), '2'=>$langs->trans("BillShortStatusPaid"), '1,2'=>$langs->trans("BillShortStatusNotPaid").'+'.$langs->trans("BillShortStatusPaid"), '3'=>$langs->trans("BillShortStatusCanceled"));
+	print $form->selectarray('search_status', $liststatus, $search_status, 1, 0, 0, '', 0, 0, 0, '', '', 1);
+	print '</td>';
 
-			var $td = $item.closest('td');
+	// Action column
+	print '<td class="liste_titre" align="middle">';
+	$searchpicto = $form->showFilterButtons();
+	print $searchpicto;
+	print '</td>';
+	print "</tr>\n";
 
-			data["id"] = $item.val();
-
-			$td.html('...');
-
-			$.ajax({
-				url:"instance.php"
-				,data:data
-				,dataType:'html'
-				,method:'post'
-			}).done(function(res) {
-
-				cpt++;
-
-				$bar.progressbar( "value", cpt );
-				$div.find('.info').html(cpt+' / '+nb);
-
-				if(res == 1) {
-
-					$td.html('<?php echo img_picto('','on'); ?>');
-
-				}
-				else {
-					$td.html('<?php echo img_picto('','off'); ?> '+res);
-					error++;
-				}
-
-				if(cpt == nb){
-					if(error>0) {
-						$div.find('.info').html('<?php echo  addslashes($langs->transnoentities('AllDocumentsGeneratedButError')) ?>');
-					}
-					else{
-						$div.find('.info').html('<?php echo  addslashes($langs->transnoentities('AllDocumentsGenerated')) ?>');
-					}
+	print '<tr class="liste_titre">';
 
 
-				}
-
-
-
-			});
-
-
-		});
-
-	});
-
-	</script>
-	<?php
 
 }
 
