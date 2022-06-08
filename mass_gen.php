@@ -442,7 +442,7 @@ function _list_invoice() {
 			print "</td>";
 
 			print '<td class="nowrap" align="center">';
-			print '<input id="cb'.$obj->id.'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$obj->id.'"'.($selected ? ' checked="checked"' : '').'>';
+			print '<input id="invoice'.$obj->rowid.'" rel="invoicetogen" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$obj->rowid.'"'.($selected ? ' checked="checked"' : '').'>';
 			print '</td>';
 
 			print '</tr>';
@@ -461,6 +461,108 @@ function _list_invoice() {
 
 
 	print '</form>'."\n";
+
+	?>
+	<script type="text/javascript">
+		$("#check-all").change(function() {
+
+			$("input[rel=invoicetogen]").prop("checked", $(this).prop("checked"));
+
+		});
+
+		$('input[name=bt_generate]').click(function() {
+
+			var data = { langs_chapter:"<?php echo $langs->defaultlang; ?>", justinformme:1, element_type: "<?php echo $refltrelement_type ?>", action: "buildoc", idletter:"<?php echo $idletter?>" };
+
+			$('#ref-letter input,#ref-letter textarea').each(function(i,item) {
+				$item = $(item);
+
+				if($item.attr('type') == 'checkbox') {
+					if($item.prop('checked')) data[$item.attr('name')]= $item.val();
+					else null;
+				}
+				else{
+					data[$item.attr('name')]=$item.val();
+				}
+
+
+
+			});
+			console.log(data);
+			var $togen = $('input[rel=invoicetogen]:checked');
+			var nb = $togen.length;
+			var cpt = 0;
+			var error = 0;
+
+			var $bar = $('<div id="progressbar"></div>').progressbar({
+				max : nb
+				,value : 0
+			});
+
+			var $div = $('<div />');
+			$div.append($bar);
+			$div.append('<div class="info"></div>');
+
+			$div.dialog({
+				'title':"<?php echo $langs->transnoentities('GenerationInProgress') ?>"
+				,'modal':true
+
+			});
+
+
+			$togen.each(function(i,item) {
+				var $item = $(item);
+
+				var $td = $item.closest('td');
+
+				data["id"] = $item.val();
+
+				$td.html('...');
+
+				$.ajax({
+					url:"instance.php"
+					,data:data
+					,dataType:'html'
+					,method:'post'
+				}).done(function(res) {
+
+					cpt++;
+
+					$bar.progressbar( "value", cpt );
+					$div.find('.info').html(cpt+' / '+nb);
+
+					if(res == 1) {
+
+						$td.html('<?php echo img_picto('','on'); ?>');
+
+					}
+					else {
+						$td.html('<?php echo img_picto('','off'); ?> '+res);
+						error++;
+					}
+
+					if(cpt == nb){
+						if(error>0) {
+							$div.find('.info').html('<?php echo  addslashes($langs->transnoentities('AllDocumentsGeneratedButError')) ?>');
+						}
+						else{
+							$div.find('.info').html('<?php echo  addslashes($langs->transnoentities('AllDocumentsGenerated')) ?>');
+						}
+
+
+					}
+
+
+
+				});
+
+
+			});
+
+		});
+
+	</script>
+	<?php
 
 }
 
