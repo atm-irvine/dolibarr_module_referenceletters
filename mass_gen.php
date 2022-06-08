@@ -10,6 +10,7 @@
 	require_once 'class/referenceletters_tools.class.php';
 	require_once 'class/referenceletterselements.class.php';
 
+	require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 
 	require_once 'lib/referenceletters.lib.php';
@@ -229,11 +230,11 @@ function _list_invoice() {
 	$form = new Form($db);
 
 
-	$sql = "SELECT fac.ref, fac.datef, fac.date_lim_reglement, p.datep, soc.nom, soc.town, soc.zip, fac.fk_statut";
+	$sql = "SELECT fac.rowid, fac.ref, fac.datef, fac.date_lim_reglement, p.datep, s.nom, s.town, s.zip, fac.fk_statut";
 	$sql.= " FROM ".MAIN_DB_PREFIX."facture fac";
-	$sql.= " JOIN ".MAIN_DB_PREFIX."societe s ON f.fk_soc = s.rowid";
-	$sql.= " JOIN ".MAIN_DB_PREFIX."paiement_facture pf ON fac.rowid = pf.fk_facture";
-	$sql.= " JOIN ".MAIN_DB_PREFIX."paiement p ON pf.fk_paiement = p.rowid";
+	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."societe s ON fac.fk_soc = s.rowid";
+	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paiement_facture pf ON fac.rowid = pf.fk_facture";
+	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paiement p ON pf.fk_paiement = p.rowid";
 	$sql.= " WHERE 1=1";
 
 	if ($search_ref) {
@@ -241,10 +242,10 @@ function _list_invoice() {
 	}
 
 	if ($search_datelimit_start) {
-		$sql .= " AND f.date_lim_reglement >= '".$db->idate($search_datelimit_start)."'";
+		$sql .= " AND fac.date_lim_reglement >= '".$db->idate($search_datelimit_start)."'";
 	}
 	if ($search_datelimit_end) {
-		$sql .= " AND f.date_lim_reglement <= '".$db->idate($search_datelimit_end)."'";
+		$sql .= " AND fac.date_lim_reglement <= '".$db->idate($search_datelimit_end)."'";
 	}
 
 	if ($search_datep_start) {
@@ -258,16 +259,16 @@ function _list_invoice() {
 	if ($search_status != '-1' && $search_status != '') {
 		if (is_numeric($search_status) && $search_status >= 0) {
 			if ($search_status == '0') {
-				$sql .= " AND f.fk_statut = 0"; // draft
+				$sql .= " AND fac.fk_statut = 0"; // draft
 			}
 			if ($search_status == '1') {
-				$sql .= " AND f.fk_statut = 1"; // unpayed
+				$sql .= " AND fac.fk_statut = 1"; // unpayed
 			}
 			if ($search_status == '2') {
-				$sql .= " AND f.fk_statut = 2"; // payed     Not that some corrupted data may contains f.fk_statut = 1 AND f.paye = 1 (it means payed too but should not happend. If yes, reopen and reclassify billed)
+				$sql .= " AND fac.fk_statut = 2"; // payed     Not that some corrupted data may contains f.fk_statut = 1 AND f.paye = 1 (it means payed too but should not happend. If yes, reopen and reclassify billed)
 			}
 			if ($search_status == '3') {
-				$sql .= " AND f.fk_statut = 3"; // abandonned
+				$sql .= " AND fac.fk_statut = 3"; // abandonned
 			}
 		} else {
 			$sql .= " AND fac.fk_statut IN (".$db->sanitize($db->escape($search_status)).")"; // When search_status is '1,2' for example
@@ -276,10 +277,13 @@ function _list_invoice() {
 
 	// Complete request and execute it with limit
 	$sql .= ' ORDER BY ';
-	$listfield = explode(',', $sortfield);
-	$listorder = explode(',', $sortorder);
-	foreach ($listfield as $key => $value) {
-		$sql .= $listfield[$key].' '.($listorder[$key] ? $listorder[$key] : 'DESC').',';
+	if(!empty($listfield)) {
+		$listfield = explode(',', $sortfield);
+		$listorder = explode(',', $sortorder);
+		foreach ($listfield as $key => $value) {
+			if (!em)
+				$sql .= $listfield[$key] . ' ' . ($listorder[$key] ? $listorder[$key] : 'DESC') . ',';
+		}
 	}
 	$sql .= ' fac.rowid DESC ';
 
@@ -362,7 +366,101 @@ function _list_invoice() {
 
 	print '<tr class="liste_titre">';
 
+	print_liste_field_titre("Ref", $_SERVER['PHP_SELF'], 'fac.ref', '', $param, '', $sortfield, $sortorder);
 
+	print_liste_field_titre("DateInvoice", $_SERVER['PHP_SELF'], 'fac.datef', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre("DateDue", $_SERVER['PHP_SELF'], 'fac.date_lim_reglement', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre("DatePayment", $_SERVER['PHP_SELF'], 'p.datep', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre("ThirdParty", $_SERVER['PHP_SELF'], 's.nom', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre("Town", $_SERVER['PHP_SELF'], 's.town', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre("Zip", $_SERVER['PHP_SELF'], 's.zip', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre("Statut", $_SERVER['PHP_SELF'], 'fac.fk_statut', '', $param, '', $sortfield, $sortorder);
+
+	print_liste_field_titre($selectedfields, $_SERVER["PHP_SELF"], "", '', '', 'align="center"', $sortfield, $sortorder, 'maxwidthsearch ');
+
+	$facturestatic = new Facture($db);
+	$companystatic = new Societe($db);
+	$paiemantstatic = new Paiement($db);
+
+	if ($num > 0) {
+		$i = 0;
+
+		$last_num = min($num, $limit);
+
+		while ($i < $last_num) {
+			$obj = $db->fetch_object($resql);
+
+			$facturestatic->id = $obj->rowid;
+			$facturestatic->ref = $obj->ref;
+			$facturestatic->datef = $obj->datef;
+			$facturestatic->date_lim_reglement = $obj->date_lim_reglement;
+
+			$paiemantstatic->datepaye = $obj->datep;
+
+			$companystatic->name = $obj->nom;
+			$companystatic->town = $obj->town;
+			$companystatic->zip = $obj->zip;
+
+			print '<tr class="oddeven">';
+
+			print '<td class="nobordernopadding nowraponall">';
+			print $facturestatic->getNomUrl(1, '', 200, 0, '', 0, 1);
+			print '</td>';
+
+			print '<td align="" class="nowraponall">';
+			print dol_print_date($db->jdate($obj->datef), 'day');
+			print '</td>';
+
+			print '<td align="" class="nowraponall">';
+			print dol_print_date($db->jdate($obj->date_lim_reglement), 'day');
+			print '</td>';
+
+			print '<td align="" class="nowraponall">';
+			print dol_print_date($db->jdate($obj->datep), 'day');
+			print '</td>';
+
+			print '<td align="" class="nowraponall">';
+			print $obj->nom;
+			print '</td>';
+
+			print '<td align="" class="nowraponall">';
+			print $obj->town;
+			print '</td>';
+
+			print '<td align="" class="nowraponall">';
+			print $obj->zip;
+			print '</td>';
+
+			print '<td class="nowrap ">';
+			print $facturestatic->LibStatut($obj->paye, $obj->fk_statut, 5, $paiement, $obj->type);
+			print "</td>";
+
+			print '<td class="nowrap" align="center">';
+			print '<input id="cb'.$obj->id.'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$obj->id.'"'.($selected ? ' checked="checked"' : '').'>';
+			print '</td>';
+
+			print '</tr>';
+
+
+			$i++;
+		}
+	}
+
+	print '</table>'."\n";
+	print '</div>'."\n";
+
+	print '<div class="tabsAction">';
+	print '<input type="button" class="butAction" name="bt_generate" value="'.$langs->trans('Generate').'"> ';
+	print '</div>';
+
+
+	print '</form>'."\n";
 
 }
 
