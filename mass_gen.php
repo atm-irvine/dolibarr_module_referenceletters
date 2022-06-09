@@ -600,7 +600,7 @@ function _get_link_invoice($id) {
 	$facture->fetch($id); // TODO improve perf
 
 	return $facture->getNomUrl(1,'',200,0,'',0,1)
-		.' '.img_picto('','object_referenceletters.png@referenceletters').' <a href="'.dol_buildpath('/referenceletters/referenceletters/instance.php',1).'?id='.$id.'&element_type=invoice">'.$langs->trans('RefLtrLetters').'</a>' ;
+		.' '.img_picto('','object_referenceletters.png@referenceletters').' <a href="'.dol_buildpath('/referenceletters/instance.php',1).'?id='.$id.'&element_type=invoice">'.$langs->trans('RefLtrLetters').'</a>' ;
 }
 
 function _list_thirdparty()

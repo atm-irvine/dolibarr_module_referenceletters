@@ -17,7 +17,7 @@
  */
 
 /**
- * \file referenceletters/referenceletters/list_instance.php
+ * \file referenceletters/list_instance.php
  * \ingroup referenceletters
  * \brief list of referenceletters
  */
@@ -216,7 +216,7 @@ if ($num != - 1) {
 		print "<tr $bc[$var]>";
 
 		// Title
-		print '<td><a href="' . dol_buildpath('referenceletters/referenceletters/instance.php', 1) . '?id=' . $line->fk_element . '&element_type=' . $line->element_type . '">' . $line->ref . '</a></td>';
+		print '<td><a href="' . dol_buildpath('referenceletters/instance.php', 1) . '?id=' . $line->fk_element . '&element_type=' . $line->element_type . '">' . $line->ref . '</a></td>';
 
 		// Element
 		require_once $object_ref->element_type_list[$line->element_type]['classpath'] . $object_ref->element_type_list[$line->element_type]['class'];

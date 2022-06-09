@@ -279,7 +279,7 @@ if ($action == 'buildoc') {
 		if ($result < 0) {
 			setEventMessage($object_element->errors, 'errors');
 		} else {
-			header('Location:' . dol_buildpath('/referenceletters/referenceletters/instance.php', 1) . '?id=' . $object->id . '&element_type=' . $element_type);
+			header('Location:' . dol_buildpath('/referenceletters/instance.php', 1) . '?id=' . $object->id . '&element_type=' . $element_type);
 		}
 	}
 }

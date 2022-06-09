@@ -17,7 +17,7 @@
  */
 
 /**
- * \file /referenceletters/referenceletters/background.php
+ * \file /referenceletters/background.php
  * \ingroup referenceletters
  */
 
@@ -119,7 +119,7 @@ if ($object->id) {
 		$totalsize += $file['size'];
 	}
 
-	$linkback = '<a href="' . dol_buildpath('/referenceletters/referenceletters/list.php', 1) . '">' . $langs->trans("BackToList") . '</a>';
+	$linkback = '<a href="' . dol_buildpath('/referenceletters/list.php', 1) . '">' . $langs->trans("BackToList") . '</a>';
 	print $linkback;
 
 	print '<table class="border" width="100%">';

@@ -313,7 +313,7 @@ function referenceletterMassPrepareHead() {
 	$h = 0;
 	$head = array();
 
-	$head[$h][0] = dol_buildpath('/referenceletters/referenceletters/mass_gen.php', 1);
+	$head[$h][0] = dol_buildpath('/referenceletters/mass_gen.php', 1);
 	$head[$h][1] = $langs->trans("Module103258Name");
 	$head[$h][2] = 'card';
 	$h ++;

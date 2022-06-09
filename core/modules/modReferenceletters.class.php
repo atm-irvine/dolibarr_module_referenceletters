@@ -181,7 +181,7 @@ class modReferenceletters extends DolibarrModules
 			'order:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=order',
 			'supplier_proposal:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=supplier_proposal',
 			'supplier_order:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=order_supplier',
-			//'delivery:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/referenceletters/instance.php?id=__ID__&element_type=expedition'
+			//'delivery:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=expedition'
 		);
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@referenceletters:$user->rights->referenceletters->read:/referenceletters/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1
@@ -373,7 +373,7 @@ class modReferenceletters extends DolibarrModules
             'fk_menu'=>'fk_mainmenu=referenceletters',
             // This is a Left menu entry
             'type'=>'left',
-            'titre'=>'List ReferenceLetters',
+            'titre'=>'RefLtrList',
             'mainmenu'=>'referenceletters',
             'leftmenu'=>'referenceletters_referenceletters',
             'url'=>'/referenceletters/referenceletters_list.php',
@@ -393,7 +393,7 @@ class modReferenceletters extends DolibarrModules
             'fk_menu'=>'fk_mainmenu=referenceletters,fk_leftmenu=referenceletters_referenceletters',
             // This is a Left menu entry
             'type'=>'left',
-            'titre'=>'New ReferenceLetters',
+            'titre'=>'RefLtrNew',
             'mainmenu'=>'referenceletters',
             'url'=>'/referenceletters/referenceletters_card.php?action=create',
             // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.

@@ -17,7 +17,7 @@
  */
 
 /**
- * \file referenceletters/referenceletters/info.php
+ * \file referenceletters/info.php
  * \ingroup referenceletters
  * \brief info of referenceletters
  */
