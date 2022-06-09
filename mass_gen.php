@@ -50,8 +50,6 @@
 
 	_show_ref_letter($idletter);
 
-
-
 		if($refltrelement_type == 'invoice') {
 
 			_list_invoice();
@@ -195,6 +193,9 @@ function _show_ref_letter($idletter) {
 function _list_invoice() {
 	global $conf,$db,$user,$langs,$refltrelement_type,$idletter;
 
+	$sortfield = GETPOST('sortfield', 'alpha');
+	$sortorder = GETPOST('sortorder', 'alpha');
+
 	$limit = GETPOST('limit', 'int') ?GETPOST('limit', 'int') : $conf->liste_limit;
 	$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 	if (empty($page) || $page < 0 || GETPOST('button_search', 'alpha') || GETPOST('button_removefilter', 'alpha')) {
@@ -203,6 +204,8 @@ function _list_invoice() {
 	$offset = $limit * $page;
 	$pageprev = $page - 1;
 	$pagenext = $page + 1;
+
+	$contextpage = 'invoicelist';
 
 	$search_ref = GETPOST('sf_ref') ?GETPOST('sf_ref', 'alpha') : GETPOST('search_ref', 'alpha');
 
@@ -281,8 +284,9 @@ function _list_invoice() {
 		$listfield = explode(',', $sortfield);
 		$listorder = explode(',', $sortorder);
 		foreach ($listfield as $key => $value) {
-			if (!em)
+			if (!empty($listfield[$key])) {
 				$sql .= $listfield[$key] . ' ' . ($listorder[$key] ? $listorder[$key] : 'DESC') . ',';
+			}
 		}
 	}
 	$sql .= ' fac.rowid DESC ';
@@ -295,8 +299,15 @@ function _list_invoice() {
 
 	if ($resql) {
 		$num = $db->num_rows($resql);
-
 	}
+
+	$param = '';
+	if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"])
+		$param .= '&contextpage='.$contextpage;
+	if ($limit > 0 && $limit != $conf->liste_limit)
+		$param .= '&limit='.$limit;
+	$param .= '&begin='.urlencode($begin).'&view='.urlencode($view).'&userid='.urlencode($userid).'&contactname='.urlencode($sall);
+	$param .= '&type='.urlencode($type).'&view='.urlencode($view);
 
 	print '<form method="POST" name="searchFormList" action="'.$_SERVER["PHP_SELF"].'">'."\n";
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -364,15 +375,16 @@ function _list_invoice() {
 	print '</td>';
 	print "</tr>\n";
 
+	$param.='&refltrelement_type='.$refltrelement_type.'&idletter='.$idletter;
 	print '<tr class="liste_titre">';
 
 	print_liste_field_titre("Ref", $_SERVER['PHP_SELF'], 'fac.ref', '', $param, '', $sortfield, $sortorder);
 
-	print_liste_field_titre("DateInvoice", $_SERVER['PHP_SELF'], 'fac.datef', '', $param, '', $sortfield, $sortorder);
+	print getTitleFieldOfList("DateInvoice", $_SERVER['PHP_SELF'], 'fac.datef', '', $param, '', '', $sortfield, $sortorder, '', 1);
 
-	print_liste_field_titre("DateDue", $_SERVER['PHP_SELF'], 'fac.date_lim_reglement', '', $param, '', $sortfield, $sortorder);
+	print getTitleFieldOfList("DateDue", $_SERVER['PHP_SELF'], 'fac.date_lim_reglement', '', $param, '', '', $sortfield, $sortorder, '', 1);
 
-	print_liste_field_titre("DatePayment", $_SERVER['PHP_SELF'], 'p.datep', '', $param, '', $sortfield, $sortorder);
+	print getTitleFieldOfList("DatePayment", $_SERVER['PHP_SELF'], 'p.datep', '', $param, '', '', $sortfield, $sortorder, '', 1);
 
 	print_liste_field_titre("ThirdParty", $_SERVER['PHP_SELF'], 's.nom', '', $param, '', $sortfield, $sortorder);
 
@@ -2537,7 +2549,6 @@ function _list_contact()
 
 	$sql .= $db->plimit($limit + 1, $offset);
 
-	print_r($sql);
 	$result = $db->query($sql);
 	if (!$result)
 	{
