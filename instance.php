@@ -121,11 +121,11 @@ $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action
 if ($action == 'buildoc') {
 	// New letter
 	if (empty($refletterelemntid)) {
-		$ref_int = GETPOST('ref_int', 'alpha');
-		if(empty($ref_int)) $ref_int = $object_element->getNextNumRef($object->thirdparty, $user->id, $element_type);
+		$ref = GETPOST('ref', 'alpha');
+		if(empty($ref)) $ref = $object_element->getNextNumRef($object->thirdparty, $user->id, $element_type);
 
 		// Save data
-		$object_element->ref_int = $ref_int;
+		$object_element->ref = $ref;
 		$object_element->title = GETPOST('title_instance', 'none');
 		$object_element->fk_element = $object->id;
 		$object_element->element_type = $element_type;
@@ -144,7 +144,7 @@ if ($action == 'buildoc') {
 			$langs_chapter = $langs->defaultlang;
 		}
 
-		$result = $object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' =>$idletter,'customsql'=>'lang="'.$langs_chapter.'"'));
+		$TChapters = $object_chapters->fetchAll('', '', '', '', array('fk_referenceletters' =>$idletter,'customsql'=>'lang="'.$langs_chapter.'"'));
 		if ($result < 0) {
 			if($justinformme) echo $object_element->error;
 			else setEventMessage($object_chapters->error, 'errors');
@@ -152,8 +152,8 @@ if ($action == 'buildoc') {
 
 		// Use a big array into class it is serialize
 		$content_letter = array ();
-		if (is_array($object_chapters->lines_chapters) && count($object_chapters->lines_chapters) > 0) {
-			foreach ($object_chapters->lines_chapters as $key => $line_chapter) {
+		if (is_array($TChapters) && count($TChapters) > 0) {
+			foreach ($TChapters as $key => $line_chapter) {
 				$options = array ();
 				if (is_array($line_chapter->options_text) && count($line_chapter->options_text) > 0) {
 					foreach ($line_chapter->options_text as $key => $option_text) {
@@ -165,7 +165,7 @@ if ($action == 'buildoc') {
 				}
 
 				$content_letter[$line_chapter->id] = array (
-					'content_text' => RfltrTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id, 'none')),
+					'content_text' => ReferenceLettersTools::setImgLinkToUrl(GETPOST('content_text_' . $line_chapter->id, 'none')),
 					'options' => $options
 				);
 			}
@@ -333,7 +333,7 @@ $options='&amp;element_type='.$element_type.'&amp;id='.$id;
 
 print '<table class="noborder" width="100%">';
 print '<tr class="liste_titre">';
-print_liste_field_titre($langs->trans("RefLtrRef"), $_SERVER['PHP_SELF'], "t.ref_int", "", $options, '', $sortfield, $sortorder);
+print_liste_field_titre($langs->trans("RefLtrRef"), $_SERVER['PHP_SELF'], "t.ref", "", $options, '', $sortfield, $sortorder);
 print_liste_field_titre($langs->trans("RefLtrTitle"), $_SERVER['PHP_SELF'], "t.title", "", $options, '', $sortfield, $sortorder);
 print_liste_field_titre($langs->trans("RefLtrTitleModel"), $_SERVER['PHP_SELF'], "p.title", "", $options, '', $sortfield, $sortorder);
 print_liste_field_titre($langs->trans("RefLtrDatec"), $_SERVER['PHP_SELF'], "t.element_type", "", $options, '', $sortfield, $sortorder);
@@ -352,7 +352,7 @@ if (is_array($object_element->lines) && count($object_element->lines) > 0) {
 		print "<tr $bc[$var]>";
 
 		// Ref int
-		print '<td><a href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&element_type=' . $element_type . '&refletterelemntid=' . $line->id . '&action=edit">' . $line->ref_int . '</a></td>';
+		print '<td><a href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&element_type=' . $element_type . '&refletterelemntid=' . $line->id . '&action=edit">' . $line->ref . '</a></td>';
 
 		// title
 		print '<td>' . $line->title . '</td>';
@@ -364,8 +364,8 @@ if (is_array($object_element->lines) && count($object_element->lines) > 0) {
 
 		// File
 		print '<td>';
-		$filename = dol_sanitizeFileName($line->ref_int);
-		$filedir = $conf->referenceletters->dir_output . "/" . $element_type . "/" . $line->ref_int;
+		$filename = dol_sanitizeFileName($line->ref);
+		$filedir = $conf->referenceletters->dir_output . "/" . $element_type . "/" . $line->ref;
 		$linkeddoc = $formfile->getDocumentsLink('referenceletters', $filename, $filedir);
 		$linkeddoc = preg_replace('/file=/', 'file=' . $element_type . '%2F', $linkeddoc);
 		// var_dump($linkeddoc);
@@ -429,9 +429,9 @@ if (! empty($idletter)) {
 			print $langs->trans('RefLtrRef');
 			print '</td>';
 			print '<td>';
-			$ref_int = $object_element->getNextNumRef($object->thirdparty, $user->id, $element_type);
-			print $ref_int;
-			print '<input type="hidden" name="ref_int" value="' . $ref_int . '">';
+			$ref = $object_element->getNextNumRef($object->thirdparty, $user->id, $element_type);
+			print $ref;
+			print '<input type="hidden" name="ref" value="' . $ref . '">';
 			print '</td>';
 			print '</tr>';
 
@@ -581,7 +581,7 @@ if (! empty($refletterelemntid)) {
 			print $langs->trans('RefLtrRef');
 			print '</td>';
 			print '<td>';
-			print $object_element->ref_int;
+			print $object_element->ref;
 			print '</td>';
 			print '</tr>';
 

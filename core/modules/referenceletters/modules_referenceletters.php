@@ -108,7 +108,7 @@ abstract class ModelePDFReferenceLetters extends CommonDocGeneratorReferenceLett
 				$object->thirdparty->country=$this->outputlangs->transnoentitiesnoconv("Country".$object->thirdparty->country_code);
 			}
 
-			$objectref = dol_sanitizeFileName($instance_letter->ref_int);
+			$objectref = dol_sanitizeFileName($instance_letter->ref);
 			$dir = $conf->referenceletters->dir_output . "/".$doctypedir."/" . $objectref;
 			$file = $dir . '/' . $objectref . ".pdf";
 
@@ -159,7 +159,7 @@ abstract class ModelePDFReferenceLetters extends CommonDocGeneratorReferenceLett
 				$this->pdf->SetSubject($this->outputlangs->transnoentities("Module103258Name"));
 				$this->pdf->SetCreator("Dolibarr " . DOL_VERSION);
 				$this->pdf->SetAuthor($this->outputlangs->convToOutputCharset($user->getFullName($this->outputlangs)));
-				$this->pdf->SetKeyWords($this->outputlangs->convToOutputCharset($instance_letter->ref_int) . " " . $this->outputlangs->transnoentities("Module103258Name"));
+				$this->pdf->SetKeyWords($this->outputlangs->convToOutputCharset($instance_letter->ref) . " " . $this->outputlangs->transnoentities("Module103258Name"));
 				if (! empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) {
 					$this->pdf->SetCompression(false);
 				}

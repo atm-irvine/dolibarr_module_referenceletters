@@ -52,17 +52,17 @@
 
 
 
-//		if($refltrelement_type == 'invoice') {
-//
+		if($refltrelement_type == 'invoice') {
+
 			_list_invoice();
-//
-//		}else if($refltrelement_type == 'thirdparty') {
-//			_list_thirdparty();
-//		}
-//		else if($refltrelement_type == 'contact') {
-//			_list_contact();
-//		}
-//
+
+		}else if($refltrelement_type == 'thirdparty') {
+			_list_thirdparty();
+		}
+		else if($refltrelement_type == 'contact') {
+			_list_contact();
+		}
+
 	}
 
 
@@ -2202,7 +2202,6 @@ function _list_contact()
 	$search_phone_mobile = GETPOST("search_phone_mobile", 'alpha');
 	$search_fax = GETPOST("search_fax", 'alpha');
 	$search_email = GETPOST("search_email", 'alpha');
-	$search_skype = GETPOST("search_skype", 'alpha');
 	$search_priv = GETPOST("search_priv", 'alpha');
 	$search_categ = GETPOST("search_categ", 'int');
 	$search_categ_thirdparty = GETPOST("search_categ_thirdparty", 'int');
@@ -2294,7 +2293,6 @@ function _list_contact()
 		'p.phone_mobile' => array('label' => "PhoneMobile", 'checked' => 1),
 		'p.fax' => array('label' => "Fax", 'checked' => 1),
 		'p.email' => array('label' => "EMail", 'checked' => 1),
-		'p.skype' => array('label' => "Skype", 'checked' => 1, 'enabled' => (!empty($conf->skype->enabled))),
 		'p.thirdparty' => array('label' => "ThirdParty", 'checked' => 1, 'enabled' => empty($conf->global->SOCIETE_DISABLE_CONTACTS)),
 		'p.priv' => array('label' => "ContactVisibility", 'checked' => 1, 'position' => 200),
 		'p.datec' => array('label' => "DateCreationShort", 'checked' => 0, 'position' => 500),
@@ -2361,7 +2359,6 @@ function _list_contact()
 			$search_phone_mobile = "";
 			$search_fax = "";
 			$search_email = "";
-			$search_skype = "";
 			$search_priv = "";
 			$search_status = -1;
 			$search_categ = '';
@@ -2397,8 +2394,8 @@ function _list_contact()
 
 	$title = (!empty($conf->global->SOCIETE_ADDRESSES_MANAGEMENT) ? $langs->trans("Contacts") : $langs->trans("ContactsAddresses"));
 
-	$sql = "SELECT s.rowid as socid, s.nom as name,";
-	$sql .= " p.rowid, p.lastname as lastname, p.statut, p.firstname, p.zip, p.town, p.poste, p.email, p.skype,";
+	$sql = "SELECT DISTINCT p.rowid, s.rowid as socid, s.nom as name,";
+	$sql .= " p.lastname as lastname, p.statut, p.firstname, p.zip, p.town, p.poste, p.email,";
 	$sql .= " p.phone as phone_pro, p.phone_mobile, p.phone_perso, p.fax, p.fk_pays, p.priv, p.datec as date_creation, p.tms as date_update,";
 	$sql .= " co.code as country_code";
 // Add fields from extrafields
@@ -2487,8 +2484,6 @@ function _list_contact()
 		$sql .= natural_search('p.phone_mobile', $search_phone_mobile);
 	if (strlen($search_fax))
 		$sql .= natural_search('p.fax', $search_fax);
-	if (strlen($search_skype))
-		$sql .= natural_search('p.skype', $search_skype);
 	if (strlen($search_email))
 		$sql .= natural_search('p.email', $search_email);
 	if ($search_status != '' && $search_status >= 0)
@@ -2531,6 +2526,7 @@ function _list_contact()
 		$sql .= $db->order($sortfield, $sortorder);
 	}
 
+
 // Count total nb of records
 	$nbtotalofrecords = '';
 	if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST))
@@ -2541,6 +2537,7 @@ function _list_contact()
 
 	$sql .= $db->plimit($limit + 1, $offset);
 
+	print_r($sql);
 	$result = $db->query($sql);
 	if (!$result)
 	{
@@ -2767,12 +2764,6 @@ function _list_contact()
 		print '<input class="flat" type="text" name="search_email" size="6" value="'.dol_escape_htmltag($search_email).'">';
 		print '</td>';
 	}
-	if (!empty($arrayfields['p.skype']['checked']))
-	{
-		print '<td class="liste_titre">';
-		print '<input class="flat" type="text" name="search_skype" size="6" value="'.dol_escape_htmltag($search_skype).'">';
-		print '</td>';
-	}
 	if (!empty($arrayfields['p.thirdparty']['checked']))
 	{
 		print '<td class="liste_titre">';
@@ -2851,8 +2842,6 @@ function _list_contact()
 		print_liste_field_titre($arrayfields['p.fax']['label'], $_SERVER["PHP_SELF"], "p.fax", $begin, $param, '', $sortfield, $sortorder);
 	if (!empty($arrayfields['p.email']['checked']))
 		print_liste_field_titre($arrayfields['p.email']['label'], $_SERVER["PHP_SELF"], "p.email", $begin, $param, '', $sortfield, $sortorder);
-	if (!empty($arrayfields['p.skype']['checked']))
-		print_liste_field_titre($arrayfields['p.skype']['label'], $_SERVER["PHP_SELF"], "p.skype", $begin, $param, '', $sortfield, $sortorder);
 	if (!empty($arrayfields['p.thirdparty']['checked']))
 		print_liste_field_titre($arrayfields['p.thirdparty']['label'], $_SERVER["PHP_SELF"], "s.nom", $begin, $param, '', $sortfield, $sortorder);
 	if (!empty($arrayfields['p.priv']['checked']))
@@ -2976,16 +2965,6 @@ function _list_contact()
 			if (!$i)
 				$totalarray['nbfield'] ++;
 		}
-		// Skype
-		if (!empty($arrayfields['p.skype']['checked']))
-		{
-			if (!empty($conf->skype->enabled))
-			{
-				print '<td>'.dol_print_skype($obj->skype, $obj->rowid, $obj->socid, 'AC_SKYPE', 18).'</td>';
-			}
-			if (!$i)
-				$totalarray['nbfield'] ++;
-		}
 		// Company
 		if (!empty($arrayfields['p.thirdparty']['checked']))
 		{
@@ -3101,9 +3080,9 @@ function _list_contact()
 	 *
 	 */
 	?>
-		<script type="text/javascript">
+	<script type="text/javascript">
 
-			$('[name*=use_custom]').click(function() {
+		$('[name*=use_custom]').click(function() {
 
 			var is_checked = $(this).prop('checked');
 			var name_checkbox = $(this).attr('name');
@@ -3143,9 +3122,9 @@ function _list_contact()
 			var error = 0;
 
 			var $bar = $('<div id="progressbar"></div>').progressbar({
-			      max : nb
-			      ,value : 0
-		    });
+				max : nb
+				,value : 0
+			});
 
 			var $div = $('<div />');
 			$div.append($bar);
@@ -3208,6 +3187,6 @@ function _list_contact()
 
 		});
 
-		</script>
+	</script>
 	<?php
 }
