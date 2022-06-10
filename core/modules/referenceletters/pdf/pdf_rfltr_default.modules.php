@@ -22,6 +22,7 @@
  * \ingroup referenceletters
  * \brief Class file to create PDF for letter's model on contract
  */
+dol_include_once('/referenceletters/class/referenceletters_tools.class.php');
 dol_include_once('/referenceletters/core/modules/referenceletters/pdf/pdf_rfltr_invoice.modules.php');
 require_once (DOL_DOCUMENT_ROOT . "/core/class/commondocgenerator.class.php");
 dol_include_once('/referenceletters/core/modules/referenceletters/modules_referenceletters.php');
@@ -105,7 +106,7 @@ class pdf_rfltr_default extends CommonDocGenerator
 		$id_model = $object->array_options['options_rfltr_model_id'];
 
 		dol_include_once('/referenceletters/class/referenceletters_tools.class.php');
-		$instances = RfltrTools::load_object_refletter($object->id, $id_model, $object, '', GETPOST('lang_id', 'none'));
+		$instances = ReferenceLettersTools::load_object_refletter($object->id, $id_model, $object, '', GETPOST('lang_id', 'none'));
 		/** @var ReferenceLettersElements $instance_letter */
 		$instance_letter = $instances[0];
 

@@ -95,7 +95,7 @@ class pdf_rfltr_agefodd extends ModelePDFReferenceLetters
 		}
 
 		// Chargement du modèle utilisé
-		$tmpTab = RfltrTools::load_object_refletter($id_object, $id_model, $obj_agefodd_convention, $socid, $outputlangs->defaultlang);
+		$tmpTab = ReferenceLettersTools::load_object_refletter($id_object, $id_model, $obj_agefodd_convention, $socid, $outputlangs->defaultlang);
         $instance_letter = $tmpTab[0];
         $object = $tmpTab[1];
 

@@ -115,10 +115,18 @@ class modReferenceletters extends DolibarrModules
 			),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => array(
-				//   'data' => array(
-				//       'hookcontext1',
-				//       'hookcontext2',
-				//   ),
+				   'data' => array(
+					   'pdfgeneration'
+					   ,'formfile'
+					   ,'propalcard'
+					   ,'ordercard'
+					   ,'invoicecard'
+					   ,'contractcard'
+					   ,'supplier_proposalcard'
+					   ,'ordersuppliercard'
+					   ,'expeditioncard'
+					   ,'interventioncard'
+				   ),
 				//   'entity' => '0',
 			),
 			// Set this to 1 if features of module are opened to external users
@@ -181,7 +189,7 @@ class modReferenceletters extends DolibarrModules
 			'order:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=order',
 			'supplier_proposal:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=supplier_proposal',
 			'supplier_order:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=order_supplier',
-			//'delivery:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=expedition'
+//			'delivery:+tabReferenceLetters:RefLtrLetters:referenceletters@referenceletters:$user->rights->referenceletters->use:/referenceletters/instance.php?id=__ID__&element_type=expedition'
 		);
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@referenceletters:$user->rights->referenceletters->read:/referenceletters/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1

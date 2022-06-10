@@ -307,7 +307,7 @@ class ReferenceLetters extends CommonObject
 			'objectclass' => 'SupplierProposal',
 			'classpath' => DOL_DOCUMENT_ROOT . '/supplier_proposal/class/',
 			'trans' => 'supplier_proposal',
-			'title' => 'CommRequests',
+			'title' => 'SupplierProposal',
 			'menuloader_lib' => DOL_DOCUMENT_ROOT . '/core/lib/supplier_proposal.lib.php',
 			'menuloader_function' => 'supplier_proposal_prepare_head',
 			'card' => '/supplier_proposal/card.php',
@@ -669,7 +669,7 @@ class ReferenceLetters extends CommonObject
 				} elseif ($key == 'customsql') {
 					$sqlwhere[] = $value;
 				} elseif (strpos($value, '%') === false) {
-					$sqlwhere[] = $key." IN (".$this->db->sanitize($this->db->escape($value)).")";
+					$sqlwhere[] = $key." IN ('".$this->db->sanitize($this->db->escape($value))."')";
 				} else {
 					$sqlwhere[] = $key." LIKE '%".$this->db->escape($value)."%'";
 				}
@@ -696,7 +696,7 @@ class ReferenceLetters extends CommonObject
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
 
-				$records[$record->id] = $record;
+				$records[$i] = $record;
 
 				$i++;
 			}

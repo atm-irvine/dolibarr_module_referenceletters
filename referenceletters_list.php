@@ -245,7 +245,7 @@ $now = dol_now();
 
 //$help_url = "EN:Module_ReferenceLetters|FR:Module_ReferenceLetters_FR|ES:Módulo_ReferenceLetters";
 $help_url = '';
-$title = $langs->trans("ReferenceLetterss");
+$title = $langs->trans("RefLtrList");
 $morejs = array();
 $morecss = array();
 
