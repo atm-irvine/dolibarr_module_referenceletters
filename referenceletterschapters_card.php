@@ -297,6 +297,7 @@ llxHeader('', $title, $help_url, '',0,0,array(),$arrayofcss);
 // });
 // </script>';
 
+$referenceletterstools = new ReferenceLettersTools();
 
 // Part to create
 if ($action == 'create') {
@@ -307,7 +308,7 @@ if ($action == 'create') {
 
 	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("ReferenceLettersChapters")), '', 'object_'.$object->picto);
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form method="POST" action="'.dol_buildpath('/referenceletters/referenceletters_card.php', 1).'?id='.((!empty($idletter) && $idletter > 0) ? $idletter : '__ID__').'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	print '<input type="hidden" name="fk_referenceletters" value="'.$idletter.'">';
@@ -331,8 +332,6 @@ if ($action == 'create') {
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
-
-	$referenceletterstools = new ReferenceLettersTools();
 
 	print '<tr>';
 	print '<td width="20%">';
@@ -379,6 +378,16 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
+
+	print '<tr>';
+	print '<td width="20%">';
+	print $langs->trans('RefLtrTag');
+	print '</td>';
+	print '<td>';
+	print $langs->trans("RefLtrDisplayTag").'<span class="docedit_shortcode classfortooltip" data-target="#content_text"  ><span class="fa fa-code marginleftonly valignmiddle" style=" color: #444;" alt="'.$langs->trans('DisplaySubtitutionTable').'" title="'.$langs->trans('DisplaySubtitutionTable').'"></span></span>';
+	print $referenceletterstools::displaySubtitutionKeyAdvanced($user, $object_refletter);
+	print '</td>';
+	print '</tr>';
 
 	print '</table>';
 
